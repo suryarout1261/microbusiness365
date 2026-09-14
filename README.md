@@ -41,3 +41,14 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+## Design System (Vercel-style)
+- Typography: Geist Sans / Mono
+- Palette: Monochrome black surface, white text
+- Radius: 6px / 8px / 12px / 16px
+- Shadow: surface-contrast only (no heavy drop shadows)
+- Buttons: primary (white), secondary (dark border), ghost
+- Inputs: dark bg, rounded, border-subtle
+- Cards: border + surface-raised bg
+- Table: full-width semantic, numeric right-aligned
+- UX: one primary action, minimal nav, progressive disclosure, keyboard focus rings, responsive sidebar

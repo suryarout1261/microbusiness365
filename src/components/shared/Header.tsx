@@ -1,20 +1,32 @@
-import { SITE_NAME } from '../../data/constants';
+import { useState } from 'react';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
 
-export default function Header() {
+interface HeaderProps {
+  currentPath?: string;
+}
+
+export default function Header({ currentPath = '/' }: HeaderProps) {
+  const [search, setSearch] = useState('');
+
   return (
-    <header class="w-full border-b border-gray-100">
-      <div class="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
-        <span class="text-lg font-semibold tracking-tight text-gray-900">
-          {SITE_NAME}
-        </span>
-        <nav>
-          <a
-            href="#features"
-            class="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-          >
-            Features
-          </a>
-        </nav>
+    <header className="flex items-center justify-between px-6 py-3 border-b border-neutral-800 bg-neutral-900/60 backdrop-blur-md sticky top-0 z-10">
+      <div className="flex items-center gap-3 text-sm text-neutral-400">
+        <span>MicroBusiness365</span>
+        <span>/</span>
+        <span className="capitalize text-neutral-300">{currentPath.replace('/', '').replace('-', ' ') || 'Overview'}</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="relative w-64 hidden md:block">
+          <Input
+            id="search"
+            placeholder="Search..."
+            value={search}
+            onChange={setSearch}
+            className="bg-neutral-950 border-neutral-700 text-sm"
+          />
+        </div>
+        <Button variant="primary" size="sm">New</Button>
       </div>
     </header>
   );

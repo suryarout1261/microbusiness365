@@ -1,0 +1,63 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AppShell from '../components/shared/AppShell';
+
+const links = [
+  { label: 'Overview', href: '/app' },
+  { label: 'Sales', href: '/sales' },
+  { label: 'Inventory', href: '/inventory' },
+  { label: 'Customers', href: '/customers' },
+  { label: 'Expenses', href: '/expenses' },
+  { label: 'Invoices', href: '/invoices' },
+  { label: 'Reports', href: '/reports' },
+  { label: 'Tools', href: '/tools' },
+  { label: 'Settings', href: '/settings' },
+];
+---
+
+<Layout title="App">
+  <AppShell links={links} currentPath="/app">
+    <div className="max-w-5xl mx-auto space-y-10">
+      <section>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Overview</h1>
+        <p className="text-neutral-400">Your business at a glance.</p>
+      </section>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
+          <h3 className="text-sm font-medium text-neutral-300 mb-1">Total Sales</h3>
+          <p className="text-2xl font-semibold text-white">$12,450</p>
+        </div>
+        <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
+          <h3 className="text-sm font-medium text-neutral-300 mb-1">Invoices</h3>
+          <p className="text-2xl font-semibold text-white">18</p>
+        </div>
+        <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
+          <h3 className="text-sm font-medium text-neutral-300 mb-1">Customers</h3>
+          <p className="text-2xl font-semibold text-white">42</p>
+        </div>
+      </div>
+
+      <section className="rounded-xl border border-neutral-800 bg-neutral-950 overflow-hidden">
+        <div className="px-5 py-4 border-b border-neutral-800 flex items-center justify-between">
+          <h2 className="font-semibold">Recent Activity</h2>
+          <a href="#" className="text-xs text-neutral-400 hover:text-white">View all</a>
+        </div>
+        <table className="w-full text-sm">
+          <thead className="bg-neutral-900 text-neutral-400 text-left">
+            <tr>
+              <th className="px-5 py-2 font-medium">Item</th>
+              <th className="px-5 py-2 font-medium">Type</th>
+              <th className="px-5 py-2 font-medium text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-neutral-800">
+            <tr><td className="px-5 py-3">Invoice #1024</td><td className="px-5 py-3 text-neutral-400">Sale</td><td className="px-5 py-3 text-right">$1,200</td></tr>
+            <tr><td className="px-5 py-3">Customer: Acme Corp</td><td className="px-5 py-3 text-neutral-400">Contact</td><td className="px-5 py-3 text-right">—</td></tr>
+            <tr><td className="px-5 py-3">Expense: Supplies</td><td className="px-5 py-3 text-neutral-400">Expense</td><td className="px-5 py-3 text-right">$340</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </AppShell>
+</Layout>
