@@ -1,27 +1,18 @@
 @import "tailwindcss";
 @import "./design-tokens.css";
 
-/* Base styles - Vercel dark theme */
-html {
-  scroll-behavior: smooth;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
+html { scroll-behavior: smooth; }
 body {
   font-family: var(--font-sans);
-  background: #000000;
-  color: #fafafa;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #52525b; }
 
-/* Focus ring */
-*:focus-visible {
-  outline: 2px solid #fafafa;
-  outline-offset: 2px;
-}
+*:focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; }

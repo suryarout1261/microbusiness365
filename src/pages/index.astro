@@ -1,16 +1,24 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/shared/Header';
-import Hero from '../components/shared/Hero';
-import Features from '../components/shared/Features';
-import Footer from '../components/shared/Footer';
+import Layout from "../layouts/Layout.astro";
+import LandingHeader from "../components/shared/LandingHeader";
+import HeroSection from "../components/shared/HeroSection";
+import LandingFeatures from "../components/shared/LandingFeatures";
+import ToolsGrid from "../components/shared/ToolsGrid";
+import LandingFooter from "../components/shared/LandingFooter";
 ---
-
-<Layout title="Home">
-  <Header />
+<Layout title="MicroBusiness365 — Simple tools for small businesses">
+  <LandingHeader />
   <main>
-    <Hero />
-    <Features />
+    <HeroSection />
+    <LandingFeatures />
+    <ToolsGrid />
+    <section id="about" class="py-24 bg-gradient-to-b from-gray-50 dark:from-[#0c0c0f] to-white dark:to-[#0a0a0a]">
+      <div class="mx-auto max-w-3xl px-6 text-center">
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">About</h2>
+        <p class="text-gray-500 dark:text-neutral-400 leading-relaxed mb-4">MicroBusiness365 is a free, ad-free, no-sign-up business management tool for small shops, freelancers, and home businesses. Your data stays in this browser — no server, no login, no tracking.</p>
+        <p class="text-gray-500 dark:text-neutral-400 leading-relaxed">Built for people who want to manage sales, inventory, customers, and expenses without becoming a software expert.</p>
+      </div>
+    </section>
   </main>
-  <Footer />
+  <LandingFooter />
 </Layout>
