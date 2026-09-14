@@ -2,10 +2,84 @@
 import Layout from '../../layouts/Layout.astro';
 import Dashboard from '../../components/shared/Dashboard';
 ---
-<Layout title="Dashboard">
-  <div class="max-w-5xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-1">Dashboard</h1>
-    <p class="text-neutral-400 mb-6">How much did you sell, spend, and make?</p>
+<Layout title="Dashboard · Micro Business 365">
+  <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0f172a] via-[#13152e] to-[#0a0a15] border border-white/5 shadow-2xl shadow-indigo-900/20 mb-8">
+    <div class="absolute top-0 right-0 w-[420px] h-[420px] bg-indigo-700/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4"></div>
+    <div class="relative px-8 py-10 md:px-12 md:py-12">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-3 leading-[1.1]">Your business at a glance</h1>
+        <p class="text-lg text-neutral-300 mb-6">Sales, expenses, inventory, and customer insights — all in one place.</p>
+        <div class="flex flex-wrap gap-3">
+          <a href="/app/customers" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/10 hover:bg-white/15 transition">Customers</a>
+          <a href="/app/inventory" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/10 hover:bg-white/15 transition">Inventory</a>
+          <a href="/app/sales" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/10 hover:bg-white/15 transition">Sales</a>
+          <a href="/app/expenses" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/10 hover:bg-white/15 transition">Expenses</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+    <a href="/app/customers" class="group rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b0c12] border border-white/[0.06] p-6 hover:border-indigo-500/30 hover:-translate-y-0.5 transition shadow-lg shadow-black/20">
+      <h3 class="text-lg font-bold text-white mb-1">Customers</h3>
+      <p class="text-sm text-neutral-400">Manage clients, orders, and contact details.</p>
+      <span class="mt-4 inline-block text-xs font-semibold text-indigo-300">Open →</span>
+    </a>
+    <a href="/app/inventory" class="group rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b0c12] border border-white/[0.06] p-6 hover:border-violet-500/30 hover:-translate-y-0.5 transition shadow-lg shadow-black/20">
+      <h3 class="text-lg font-bold text-white mb-1">Inventory</h3>
+      <p class="text-sm text-neutral-400">Products, stock levels, and purchase costs.</p>
+      <span class="mt-4 inline-block text-xs font-semibold text-violet-300">Open →</span>
+    </a>
+    <a href="/app/sales" class="group rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b0c12] border border-white/[0.06] p-6 hover:border-fuchsia-500/30 hover:-translate-y-0.5 transition shadow-lg shadow-black/20">
+      <h3 class="text-lg font-bold text-white mb-1">Sales</h3>
+      <p class="text-sm text-neutral-400">Invoices, payments, and revenue tracking.</p>
+      <span class="mt-4 inline-block text-xs font-semibold text-fuchsia-300">Open →</span>
+    </a>
+    <a href="/app/expenses" class="group rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b0c12] border border-white/[0.06] p-6 hover:border-amber-400/30 hover:-translate-y-0.5 transition shadow-lg shadow-black/20">
+      <h3 class="text-lg font-bold text-white mb-1">Expenses</h3>
+      <p class="text-sm text-neutral-400">Costs, taxes, and budget visibility.</p>
+      <span class="mt-4 inline-block text-xs font-semibold text-amber-300">Open →</span>
+    </a>
+  </section>
+
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+    <a href="/reports" class="group rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b0c12] border border-white/[0.06] p-6 hover:border-indigo-500/30 hover:-translate-y-0.5 transition shadow-lg shadow-black/20">
+      <h3 class="text-lg font-bold text-white mb-1">Reports</h3>
+      <p class="text-sm text-neutral-400">Profit, tax, and performance summaries.</p>
+      <span class="mt-4 inline-block text-xs font-semibold text-indigo-300">Open →</span>
+    </a>
+    <a href="/settings" class="group rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b0c12] border border-white/[0.06] p-6 hover:border-violet-500/30 hover:-translate-y-0.5 transition shadow-lg shadow-black/20">
+      <h3 class="text-lg font-bold text-white mb-1">Settings</h3>
+      <p class="text-sm text-neutral-400">Preferences, categories, and data.</p>
+      <span class="mt-4 inline-block text-xs font-semibold text-violet-300">Open →</span>
+    </a>
+    <a href="/purchases" class="group rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b0c12] border border-white/[0.06] p-6 hover:border-fuchsia-500/30 hover:-translate-y-0.5 transition shadow-lg shadow-black/20">
+      <h3 class="text-lg font-bold text-white mb-1">Purchases</h3>
+      <p class="text-sm text-neutral-400">Vendor orders and supplier tracking.</p>
+      <span class="mt-4 inline-block text-xs font-semibold text-fuchsia-300">Open →</span>
+    </a>
+  </section>
+
+  <section class="bg-gradient-to-br from-[#0a0a15] to-[#120c2e] rounded-3xl border border-white/5 p-6 md:p-8 shadow-2xl shadow-indigo-900/10">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-white">Live metrics</h2>
+      <span class="text-xs font-medium text-neutral-400">Updated live from your data</span>
+    </div>
     <Dashboard client:load />
-  </div>
+  </section>
+
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10">
+    <a href="/suppliers" class="rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b0c12] border border-white/[0.06] p-6 hover:border-amber-400/30 transition shadow-lg shadow-black/20">
+      <h3 class="text-base font-bold text-white">Suppliers</h3>
+      <p class="text-sm text-neutral-400">Vendor contacts and orders.</p>
+    </a>
+    <a href="/invoices" class="rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b0c12] border border-white/[0.06] p-6 hover:border-amber-400/30 transition shadow-lg shadow-black/20">
+      <h3 class="text-base font-bold text-white">Invoices</h3>
+      <p class="text-sm text-neutral-400">Billing and payment status.</p>
+    </a>
+    <a href="/app" class="rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b0c12] border border-white/[0.06] p-6 hover:border-amber-400/30 transition shadow-lg shadow-black/20">
+      <h3 class="text-base font-bold text-white">App shell</h3>
+      <p class="text-sm text-neutral-400">Full workspace with sidebar.</p>
+    </a>
+  </section>
 </Layout>

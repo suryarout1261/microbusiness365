@@ -11,7 +11,7 @@ export default function BrandLogo({ size = 'md' }: BrandLogoProps) {
         M
       </span>
       <span className={`font-bold tracking-tight ${text} text-gray-900 dark:text-white`}>
-        MicroBusiness<span className="text-indigo-600 dark:text-indigo-400">365</span>
+        Micro Business<span className="text-indigo-600 dark:text-indigo-400"> 365</span>
       </span>
     </span>
   );
