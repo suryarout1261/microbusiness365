@@ -17,7 +17,7 @@ export default function LandingHeader() {
         </nav>
         <div className="flex items-center gap-3">
           <a href="/app" className="hidden sm:inline-flex text-sm font-medium text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white">Dashboard</a>
-          <a href="#contact" className="inline-flex px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all">Get started</a>
+          <a href="#tools" className="inline-flex px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all">Get started</a>
           <button onClick={toggle} aria-label="Toggle dark mode" className="p-2 rounded-full bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors" title={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
             {theme === 'dark' ? '☀' : '☾'}
           </button>

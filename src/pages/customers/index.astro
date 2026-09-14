@@ -1,11 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import CustomerManager from '../../components/shared/CustomerManager';
+import CustomerManager from '../../components/customers/CustomerManager';
 ---
-<Layout title="Customers">
-  <div class="max-w-5xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-1">Customers</h1>
-    <p class="text-neutral-400 mb-6">Manage customers, track balances, and view sales history.</p>
-    <CustomerManager client:load />
-  </div>
+<Layout title="Customers · Micro Business 365">
+  <CustomerManager />
 </Layout>
