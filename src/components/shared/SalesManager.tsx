@@ -61,9 +61,9 @@ export default function SalesManager() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
+      <div className="rounded-xl border border-[var(--color-border)] dark:border-neutral-800 bg-[var(--color-surface-raised)] dark:bg-neutral-950 p-5">
         <h2 className="font-semibold mb-3">New sale</h2>
-        <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="w-full bg-neutral-900 border border-neutral-800 rounded-[6px] px-3 py-2 text-sm mb-3">
+        <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="w-full bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm mb-3">
           <option value="">Walk-in customer</option>
           {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
@@ -74,39 +74,39 @@ export default function SalesManager() {
           const p = products.find((x) => x.id === l.productId);
           return (
             <div key={i} className="flex flex-col sm:flex-row gap-2 mb-2">
-              <select value={l.productId} onChange={(e) => updateLine(i, { productId: e.target.value })} className="flex-1 bg-neutral-900 border border-neutral-800 rounded-[6px] px-3 py-2 text-sm">
+              <select value={l.productId} onChange={(e) => updateLine(i, { productId: e.target.value })} className="flex-1 bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm">
                 <option value="">Select product</option>
                 {products.map((p) => <option key={p.id} value={p.id} disabled={p.currentStock <= 0 && p.type !== 'service'}>{p.name} — ₹{p.sellingPrice}{p.type !== 'service' ? ` (${p.currentStock} in stock)` : ' (service)'}</option>)}
               </select>
-              <input type="number" min="1" value={l.qty} onChange={(e) => updateLine(i, { qty: Number(e.target.value) || 1 })} className="w-20 bg-neutral-900 border border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
-              <span className="text-sm text-neutral-300 self-center">= ₹{((p?.sellingPrice || 0) * l.qty).toFixed(2)}</span>
-              <button onClick={() => setCart(cart.filter((_, idx) => idx !== i))} className="text-neutral-500 hover:text-red-400 text-sm self-center">Remove</button>
+              <input type="number" min="1" value={l.qty} onChange={(e) => updateLine(i, { qty: Number(e.target.value) || 1 })} className="w-20 bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
+              <span className="text-sm text-[var(--color-text-primary)] dark:text-neutral-300 self-center">= ₹{((p?.sellingPrice || 0) * l.qty).toFixed(2)}</span>
+              <button onClick={() => setCart(cart.filter((_, idx) => idx !== i))} className="text-[var(--color-text-muted)] dark:text-neutral-500 hover:text-red-400 text-sm self-center">Remove</button>
             </div>
           );
         })}
         {cart.length > 0 && (
           <div className="flex items-center gap-3 mt-3">
-            <button onClick={addLine} className="px-3 py-1.5 border border-neutral-700 rounded-[6px] text-xs text-neutral-300 hover:bg-neutral-900">+ Line</button>
-            <input type="number" min="0" value={amountPaid} onChange={(e) => setAmountPaid(Number(e.target.value) || 0)} placeholder="Received" className="w-28 bg-neutral-900 border border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
-            <span className="text-sm text-neutral-300">Total: <span className="text-white font-semibold">₹{subtotal().toFixed(2)}</span></span>
+            <button onClick={addLine} className="px-3 py-1.5 border border-[var(--color-border)] dark:border-neutral-700 rounded-[6px] text-xs text-[var(--color-text-primary)] dark:text-neutral-300 hover:bg-[var(--color-surface-overlay)] dark:bg-neutral-900">+ Line</button>
+            <input type="number" min="0" value={amountPaid} onChange={(e) => setAmountPaid(Number(e.target.value) || 0)} placeholder="Received" className="w-28 bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
+            <span className="text-sm text-[var(--color-text-primary)] dark:text-neutral-300">Total: <span className="text-[var(--color-text-primary)] dark:text-white font-semibold">₹{subtotal().toFixed(2)}</span></span>
             <button onClick={completeSale} className="ml-auto px-4 py-2 bg-white text-black rounded-[6px] text-sm font-medium hover:bg-neutral-200">Complete sale</button>
           </div>
         )}
       </div>
 
-      {loading ? <p className="text-neutral-500 text-sm">Loading…</p> : (
-        <div className="rounded-xl border border-neutral-800 overflow-hidden">
+      {loading ? <p className="text-[var(--color-text-muted)] dark:text-neutral-500 text-sm">Loading…</p> : (
+        <div className="rounded-xl border border-[var(--color-border)] dark:border-neutral-800 overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-neutral-900 text-neutral-400 text-left">
+            <thead className="bg-[var(--color-surface-overlay)] dark:bg-neutral-900 text-[var(--color-text-secondary)] dark:text-neutral-400 text-left">
               <tr><th className="px-4 py-2 font-medium">Number</th><th className="px-4 py-2 font-medium">Date</th><th className="px-4 py-2 text-right font-medium">Total</th><th className="px-4 py-2 text-right font-medium">Paid</th><th className="px-4 py-2 text-right font-medium">Status</th></tr>
             </thead>
             <tbody className="divide-y divide-neutral-800">
               {sales.map((s) => (
                 <tr key={s.id}>
-                  <td className="px-4 py-3 text-white">{s.saleNumber}</td>
-                  <td className="px-4 py-3 text-neutral-400">{new Date(s.date).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-[var(--color-text-primary)] dark:text-white">{s.saleNumber}</td>
+                  <td className="px-4 py-3 text-[var(--color-text-secondary)] dark:text-neutral-400">{new Date(s.date).toLocaleDateString()}</td>
                   <td className="px-4 py-3 text-right text-neutral-200">₹{s.total.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right text-neutral-400">₹{s.amountPaid.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-right text-[var(--color-text-secondary)] dark:text-neutral-400">₹{s.amountPaid.toFixed(2)}</td>
                   <td className="px-4 py-3 text-right"><span className="text-xs bg-neutral-800 text-neutral-200 px-2 py-0.5 rounded-full">{s.paymentStatus}</span></td>
                 </tr>
               ))}

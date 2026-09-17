@@ -15,8 +15,8 @@ export default function ProductManager() {
   const [showCatForm, setShowCatForm] = useState(false);
   const [catName, setCatName] = useState('');
   const [form, setForm] = useState<Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>>>({
-    name: '', sku: '', barcode: '', type: 'physical', unit: 'pc', purchasePrice: 0, sellingPrice: 0,
-    taxRate: 0, currentStock: 0, minimumStock: 5, supplierId: undefined, categoryId: undefined,
+    name: '', sku: '', barcode: '', type: 'physical', unit: 'pc', purchasePrice: undefined as any, sellingPrice: undefined as any,
+    taxRate: undefined as any, currentStock: undefined as any, minimumStock: 5, supplierId: undefined, categoryId: undefined,
     description: '', active: true,
   });
 
@@ -45,17 +45,16 @@ export default function ProductManager() {
 
   async function saveProduct() {
     const now = new Date().toISOString();
-    const data = { ...form, purchasePrice: Number(form.purchasePrice||0), sellingPrice: Number(form.sellingPrice||0), taxRate: Number(form.taxRate||0), currentStock: Number(form.currentStock||0), minimumStock: Number(form.minimumStock||5) } as Partial<Product>;
+    const data = { ...form, purchasePrice: form.purchasePrice === '' || form.purchasePrice === undefined || form.purchasePrice === null ? 0 : Number(form.purchasePrice), sellingPrice: form.sellingPrice === '' || form.sellingPrice === undefined || form.sellingPrice === null ? 0 : Number(form.sellingPrice), taxRate: form.taxRate === '' || form.taxRate === undefined || form.taxRate === null ? 0 : Number(form.taxRate), currentStock: form.currentStock === '' || form.currentStock === undefined || form.currentStock === null ? 0 : Number(form.currentStock), minimumStock: Number(form.minimumStock || 5) } as Partial<Product>;
     if (editing) {
       await db.products.update(editing.id, { ...data, updatedAt: now });
     } else {
       await db.products.add({ id: crypto.randomUUID(), ...data, createdAt: now, updatedAt: now } as Product);
       if (data.type === 'physical' && (data.currentStock || 0) > 0) {
         await db.stockMovements.add({ id: crypto.randomUUID(), productId: crypto.randomUUID(), type: 'in', quantity: Number(data.currentStock||0), reason: 'Opening stock', date: now, createdAt: now });
-        // Note: opening stock movement linked to product after creation; simplified for V1
       }
     }
-    setForm({ name: '', sku: '', barcode: '', type: 'physical', unit: 'pc', purchasePrice: 0, sellingPrice: 0, taxRate: 0, currentStock: 0, minimumStock: 5, supplierId: undefined, categoryId: undefined, description: '', active: true });
+    setForm({ name: '', sku: '', barcode: '', type: 'physical', unit: 'pc', purchasePrice: undefined as any, sellingPrice: undefined as any, taxRate: undefined as any, currentStock: undefined as any, minimumStock: 5, supplierId: undefined, categoryId: undefined, description: '', active: true });
     setEditing(null); setOpenAdd(false); load();
   }
 
@@ -74,9 +73,7 @@ export default function ProductManager() {
   async function delProduct(id: string) {
     if (!window.confirm('Delete product? Historical sales/purchases stay intact; product is removed from lists.')) return;
     const p = await db.products.get(id);
-    if (p) {
-      await db.products.update(id, { active: false, updatedAt: new Date().toISOString() });
-    }
+    if (p) { await db.products.update(id, { active: false, updatedAt: new Date().toISOString() }); }
     load();
   }
 
@@ -88,89 +85,179 @@ export default function ProductManager() {
     load();
   }
 
-  const inputClass = 'w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40';
-  const btnPrimary = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-black';
+  // Spreadsheet-style automatic empty row behavior
+  const [sheetRows, setSheetRows] = useState<Product[]>([]);
+  useEffect(() => {
+    setSheetRows([...filtered]);
+    if (filtered.length === 0) return;
+    const last = filtered[filtered.length-1];
+    if (!last.name && !last.sku && !last.barcode && !last.purchasePrice) {
+      // last row empty — ensure exactly one empty after filled
+      setSheetRows(prev => {
+        const filled = prev.filter(r => r.name || r.sku || (r.purchasePrice && r.purchasePrice !== 0));
+        // always keep one empty at end if last filled
+        const hasEmpty = prev[prev.length-1]?.name === '' && prev[prev.length-1]?.sku === '';
+        if (!hasEmpty && filled.length > 0) return [...prev, { id: 'empty', name: '', sku: '', barcode: '', type: 'physical', unit: 'pc', purchasePrice: undefined as any, sellingPrice: undefined as any, taxRate: undefined as any, currentStock: undefined as any, minimumStock: 5, supplierId: undefined, categoryId: undefined, description: '', active: true, createdAt: '', updatedAt: '' } as any];
+        return prev;
+      });
+    }
+  }, [filtered]);
+
+  const inputClass = 'w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2.5 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition';
+  const btnPrimary = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-black hover:bg-neutral-200 transition';
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div><h1 className="text-2xl font-bold text-white">Inventory</h1><p className="text-sm text-neutral-400">Products, categories, stock.</p></div>
-        <div className="flex gap-2"><button onClick={() => { setOpenAdd(true); setEditing(null); setForm({ name: '', sku: '', barcode: '', type: 'physical', unit: 'pc', purchasePrice: 0, sellingPrice: 0, taxRate: 0, currentStock: 0, minimumStock: 5, supplierId: undefined, categoryId: undefined, description: '', active: true }); }} className="px-4 py-2 rounded-xl bg-white text-black text-sm font-semibold">Add product</button></div>
-      </div>
-
-      <div className="flex flex-wrap gap-3 mb-4">
-        <input type="text" value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search name / SKU / barcode" className={inputClass + ' max-w-xs'} />
-        <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className={inputClass + ' max-w-[140px]'}><option value="">All categories</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
-        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={inputClass + ' max-w-[130px]'}><option value="">All types</option><option value="physical">Product</option><option value="service">Service</option></select>
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className={inputClass + ' max-w-[120px]'}><option value="">All status</option><option value="in">In stock</option><option value="low">Low</option><option value="out">Out</option></select>
-      </div>
-
-      <div className="mb-4 flex items-center gap-2">
-        <span className="text-xs text-neutral-400">Categories:</span>
-        {categories.map(c => <span key={c.id} className="inline-flex items-center gap-1 text-xs bg-neutral-800 text-white px-2 py-0.5 rounded-md">{c.name} <button onClick={() => deleteCategory(c.id)} className="text-red-300 hover:text-white">×</button></span>)}
-        <button onClick={() => setShowCatForm(!showCatForm)} className="text-xs text-indigo-300 hover:text-indigo-200">+ Add category</button>
-        {showCatForm && <div className="flex gap-2"><input className={inputClass + ' !py-1 !text-xs'} value={catName} onChange={e => setCatName(e.target.value)} placeholder="Category name" /><button onClick={saveCategory} className={btnPrimary}>Save</button></div>}
-      </div>
-
-      {(openAdd || editing) && (
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 mb-6 space-y-3">
-          <h2 className="font-semibold text-white">{editing ? 'Edit product' : 'New product'}</h2>
-          <div className="grid md:grid-cols-3 gap-3">
-            <input className={inputClass} placeholder="Product name *" value={form.name ?? ''} onChange={e => setForm({ ...form, name: e.target.value })} />
-            <input className={inputClass} placeholder="SKU" value={form.sku ?? ''} onChange={e => setForm({ ...form, sku: e.target.value })} />
-            <input className={inputClass} placeholder="Barcode" value={form.barcode ?? ''} onChange={e => setForm({ ...form, barcode: e.target.value })} />
+    <div className="min-h-screen bg-gradient-to-br from-[#0b0c15] via-[#12122a] to-[#0b0c15] text-[var(--color-text-primary)]">
+      <header className="sticky top-0 z-50 bg-[#0b0c15]/80 backdrop-blur-md border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Inventory</h1>
+            <p className="text-sm text-neutral-400 mt-1">Products, stock levels, categories and suppliers.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-3">
-            <select className={inputClass} value={form.type ?? 'physical'} onChange={e => setForm({ ...form, type: e.target.value as 'physical'|'service' })}><option value="physical">Physical</option><option value="service">Service</option></select>
-            <input className={inputClass} placeholder="Unit" value={form.unit ?? ''} onChange={e => setForm({ ...form, unit: e.target.value })} />
-            <select className={inputClass} value={form.categoryId ?? ''} onChange={e => setForm({ ...form, categoryId: e.target.value || undefined })}><option value="">Category</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+          <button onClick={() => { setOpenAdd(true); setEditing(null); setForm({ name: '', sku: '', barcode: '', type: 'physical', unit: 'pc', purchasePrice: undefined as any, sellingPrice: undefined as any, taxRate: undefined as any, currentStock: undefined as any, minimumStock: 5, supplierId: undefined, categoryId: undefined, description: '', active: true }); }} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white text-sm font-bold shadow-lg shadow-indigo-500/25 hover:brightness-110 transition">+ Add product</button>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-6 py-8">
+        {/* Filters */}
+        <section className="mb-6">
+          <div className="flex flex-wrap gap-3 items-center">
+            <input type="text" value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search name / SKU / barcode" className={inputClass + ' max-w-xs bg-neutral-900/60 border-neutral-700'} />
+            <select value={catFilter} onChange={e => setCatFilter(e.target.value)} className={inputClass + ' max-w-[140px] bg-neutral-900/60 border-neutral-700'}>
+              <option value="">All categories</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={inputClass + ' max-w-[130px] bg-neutral-900/60 border-neutral-700'}>
+              <option value="">All types</option><option value="physical">Product</option><option value="service">Service</option>
+            </select>
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className={inputClass + ' max-w-[120px] bg-neutral-900/60 border-neutral-700'}>
+              <option value="">All status</option><option value="in">In stock</option><option value="low">Low</option><option value="out">Out</option>
+            </select>
           </div>
-          <div className="grid md:grid-cols-4 gap-3">
-            <input className={inputClass} placeholder="Purchase price" type="number" value={form.purchasePrice ?? 0} onChange={e => setForm({ ...form, purchasePrice: Number(e.target.value) })} />
-            <input className={inputClass} placeholder="Selling price" type="number" value={form.sellingPrice ?? 0} onChange={e => setForm({ ...form, sellingPrice: Number(e.target.value) })} />
-            <input className={inputClass} placeholder="Tax rate %" type="number" value={form.taxRate ?? 0} onChange={e => setForm({ ...form, taxRate: Number(e.target.value) })} />
-            <select className={inputClass} value={form.supplierId ?? ''} onChange={e => setForm({ ...form, supplierId: e.target.value || undefined })}><option value="">Supplier</option>{suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
+        </section>
+
+        {/* Categories */}
+        <section className="mb-6">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Categories</span>
+            {categories.map(c => (
+              <span key={c.id} className="inline-flex items-center gap-1.5 text-xs bg-gradient-to-br from-indigo-900/60 to-violet-900/60 text-indigo-100 px-3 py-1 rounded-full border border-indigo-500/20">
+                {c.name}
+                <button onClick={() => deleteCategory(c.id)} className="text-red-300 hover:text-white ml-0.5" aria-label="Delete category">×</button>
+              </span>
+            ))}
+            <button onClick={() => setShowCatForm(!showCatForm)} className="text-xs text-indigo-300 hover:text-white font-medium">+ Add category</button>
           </div>
-          {form.type === 'physical' && (
-            <div className="grid md:grid-cols-3 gap-3">
-              <input className={inputClass} placeholder="Current stock" type="number" value={form.currentStock ?? 0} onChange={e => setForm({ ...form, currentStock: Number(e.target.value) })} />
-              <input className={inputClass} placeholder="Minimum stock" type="number" value={form.minimumStock ?? 5} onChange={e => setForm({ ...form, minimumStock: Number(e.target.value) })} />
+          {showCatForm && (
+            <div className="flex gap-2 mt-3">
+              <input className={inputClass + ' !py-2 !text-xs bg-neutral-900/60 border-neutral-700'} value={catName} onChange={e => setCatName(e.target.value)} placeholder="Category name" />
+              <button onClick={saveCategory} className={btnPrimary}>Save</button>
             </div>
           )}
-          <textarea className={inputClass} placeholder="Description" rows={2} value={form.description ?? ''} onChange={e => setForm({ ...form, description: e.target.value })} />
-          <label className="flex items-center gap-2 text-sm text-neutral-300"><input type="checkbox" checked={form.active !== false} onChange={e => setForm({ ...form, active: e.target.checked })} /> Active</label>
-          <div className="flex gap-3">
-            <button onClick={saveProduct} className="px-4 py-2 rounded-lg bg-white text-black text-sm font-semibold">Save</button>
-            <button onClick={() => { setOpenAdd(false); setEditing(null); }} className="px-4 py-2 rounded-lg border border-neutral-700 text-sm">Cancel</button>
-          </div>
-        </div>
-      )}
+        </section>
 
-      <div className="overflow-x-auto rounded-2xl border border-neutral-800 bg-neutral-950 shadow-lg shadow-black/20">
-        <table className="w-full text-sm">
-          <thead className="text-neutral-400 text-xs uppercase tracking-wider bg-neutral-900"><tr><th className="text-left px-4 py-3">Product</th><th>SKU</th><th>Type</th><th>Sell</th><th>Purchase</th><th>Stock</th><th>Min</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            {filtered.map(p => {
-              const s = stockStatus(p.currentStock, p.minimumStock);
-              const statusClass = s === 'out' ? 'text-red-400' : s === 'low' ? 'text-amber-400' : 'text-emerald-400';
-              return (
-                <tr key={p.id} className="border-t border-neutral-800 hover:bg-neutral-900/60">
-                  <td className="px-4 py-3"><div className="font-semibold text-white">{p.name}</div><div className="text-xs text-neutral-500">{categories.find(c=>c.id===p.categoryId)?.name||'-'}</div></td>
-                  <td className="px-3 py-3 text-neutral-300">{p.sku||'-'}</td>
-                  <td className="px-3 py-3"><span className="text-xs bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded-md">{p.type}</span></td>
-                  <td className="px-3 py-3 text-neutral-300">₹{p.sellingPrice}</td>
-                  <td className="px-3 py-3 text-neutral-300">₹{p.purchasePrice}</td>
-                  <td className="px-3 py-3 text-white font-medium">{p.currentStock}</td>
-                  <td className="px-3 py-3 text-neutral-400">{p.minimumStock}</td>
-                  <td className={`px-3 py-3 font-medium ${statusClass}`}>{s}</td>
-                  <td className="px-3 py-3 whitespace-nowrap"><div className="flex gap-1"><button onClick={() => { setEditing(p); setForm({ ...p }); setOpenAdd(false); }} className={btnPrimary}>Edit</button><button onClick={() => adjustStock(p.id, 1, 'Manual add')} className="px-2 py-1 rounded-lg text-xs bg-emerald-900/40 text-emerald-300 hover:bg-emerald-900">+1</button><button onClick={() => adjustStock(p.id, -1, 'Manual remove')} className="px-2 py-1 rounded-lg text-xs bg-amber-900/40 text-amber-300 hover:bg-amber-900">-1</button></div></td>
+        {/* Add/Edit Form */}
+        {(openAdd || editing) && (
+          <section className="rounded-3xl border border-neutral-700/60 bg-gradient-to-br from-neutral-900 to-[#12122a] p-6 md:p-8 shadow-2xl shadow-black/40 mb-8">
+            <h2 className="text-xl font-extrabold text-white mb-5">{editing ? 'Edit product' : 'New product'}</h2>
+            <div className="grid md:grid-cols-3 gap-3 mb-3">
+              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Product name *" value={form.name ?? ''} onChange={e => setForm({ ...form, name: e.target.value })} />
+              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="SKU" value={form.sku ?? ''} onChange={e => setForm({ ...form, sku: e.target.value })} />
+              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Barcode" value={form.barcode ?? ''} onChange={e => setForm({ ...form, barcode: e.target.value })} />
+            </div>
+            <div className="grid md:grid-cols-3 gap-3 mb-3">
+              <select className={inputClass + ' bg-neutral-950 border-neutral-700'} value={form.type ?? 'physical'} onChange={e => setForm({ ...form, type: e.target.value as 'physical'|'service' })}><option value="physical">Physical</option><option value="service">Service</option></select>
+              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Unit (e.g. pc)" value={form.unit ?? ''} onChange={e => setForm({ ...form, unit: e.target.value })} />
+              <select className={inputClass + ' bg-neutral-950 border-neutral-700'} value={form.categoryId ?? ''} onChange={e => setForm({ ...form, categoryId: e.target.value || undefined })}><option value="">Category</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+            </div>
+            <div className="grid md:grid-cols-4 gap-3 mb-3">
+              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Purchase price (e.g. ₹50)" type="number" value={form.purchasePrice === undefined || form.purchasePrice === null || form.purchasePrice === '' ? '' : form.purchasePrice} onChange={e => setForm({ ...form, purchasePrice: e.target.value === '' ? '' : Number(e.target.value) })} />
+              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Selling price (e.g. ₹75)" type="number" value={form.sellingPrice === undefined || form.sellingPrice === null || form.sellingPrice === '' ? '' : form.sellingPrice} onChange={e => setForm({ ...form, sellingPrice: e.target.value === '' ? '' : Number(e.target.value) })} />
+              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Tax rate %" type="number" value={form.taxRate === undefined || form.taxRate === null || form.taxRate === '' ? '' : form.taxRate} onChange={e => setForm({ ...form, taxRate: e.target.value === '' ? '' : Number(e.target.value) })} />
+              <select className={inputClass + ' bg-neutral-950 border-neutral-700'} value={form.supplierId ?? ''} onChange={e => setForm({ ...form, supplierId: e.target.value || undefined })}><option value="">Supplier</option>{suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
+            </div>
+            {form.type === 'physical' && (
+              <div className="grid md:grid-cols-3 gap-3 mb-3">
+                <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Current stock (e.g. 100)" type="number" value={form.currentStock === undefined || form.currentStock === null || form.currentStock === '' ? '' : form.currentStock} onChange={e => setForm({ ...form, currentStock: e.target.value === '' ? '' : Number(e.target.value) })} />
+                <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Minimum stock (e.g. 10)" type="number" value={form.minimumStock ?? 5} onChange={e => setForm({ ...form, minimumStock: Number(e.target.value) })} />
+              </div>
+            )}
+            <textarea className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Description" rows={2} value={form.description ?? ''} onChange={e => setForm({ ...form, description: e.target.value })} />
+            <label className="flex items-center gap-2 text-sm text-neutral-300"><input type="checkbox" checked={form.active !== false} onChange={e => setForm({ ...form, active: e.target.checked })} /> Active</label>
+            <div className="flex gap-3 pt-2">
+              <button onClick={saveProduct} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white font-semibold shadow-lg shadow-indigo-500/25 hover:brightness-110 transition">Save</button>
+              <button onClick={() => { setOpenAdd(false); setEditing(null); }} className="px-5 py-2.5 rounded-xl border border-neutral-600 text-sm text-neutral-300 hover:bg-neutral-900 transition">Cancel</button>
+            </div>
+          </section>
+        )}
+
+        {/* Table */}
+        <section className="rounded-3xl border border-neutral-700/60 bg-gradient-to-br from-neutral-900/60 to-[#12122a] shadow-2xl shadow-black/30 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gradient-to-r from-indigo-900/40 to-violet-900/40 text-neutral-200 text-xs uppercase tracking-wider">
+                <tr>
+                  <th className="text-left px-5 py-3.5 font-bold">Product</th>
+                  <th className="text-left px-3 py-3.5 font-bold">SKU</th>
+                  <th className="text-left px-3 py-3.5 font-bold">Category</th>
+                  <th className="text-center px-3 py-3.5 font-bold">Stock</th>
+                  <th className="text-right px-3 py-3.5 font-bold">Sell</th>
+                  <th className="text-right px-3 py-3.5 font-bold">Purchase</th>
+                  <th className="text-center px-3 py-3.5 font-bold">Status</th>
+                  <th className="text-left px-3 py-3.5 font-bold">Actions</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {filtered.length === 0 && <p className="text-neutral-400 mt-6">No products match.</p>}
+              </thead>
+              <tbody>
+                {filtered.map(p => {
+                  const s = stockStatus(p.currentStock, p.minimumStock);
+                  const statusClass = s === 'out' ? 'text-red-400 font-bold' : s === 'low' ? 'text-amber-400 font-bold' : 'text-emerald-400 font-bold';
+                  return (
+                    <tr key={p.id} className="border-t border-white/5 hover:bg-white/5 transition">
+                      <td className="px-5 py-3.5">
+                        <div className="font-semibold text-white">{p.name}</div>
+                        <div className="text-xs text-neutral-500">{categories.find(c=>c.id===p.categoryId)?.name||'-'} • {p.type}</div>
+                      </td>
+                      <td className="px-3 py-3.5 text-neutral-300 font-mono text-xs">{p.sku||'-'}</td>
+                      <td className="px-3 py-3.5 text-neutral-300">{categories.find(c=>c.id===p.categoryId)?.name||'-'}</td>
+                      <td className="px-3 py-3.5 text-center text-neutral-800 dark:text-white font-medium">{p.currentStock ?? 0}</td>
+                      <td className="px-3 py-3.5 text-right text-emerald-300 font-medium">₹{p.sellingPrice ?? 0}</td>
+                      <td className="px-3 py-3.5 text-right text-neutral-300">₹{p.purchasePrice ?? 0}</td>
+                      <td className={`px-3 py-3.5 text-center ${statusClass}`}>{s}</td>
+                      <td className="px-3 py-3.5 whitespace-nowrap">
+                        <div className="flex gap-1.5">
+                          <button onClick={() => { setEditing(p); setForm({ ...p, purchasePrice: p.purchasePrice ?? '', sellingPrice: p.sellingPrice ?? '', taxRate: p.taxRate ?? '', currentStock: p.currentStock ?? '' } as any); setOpenAdd(false); }} className={btnPrimary}>Edit</button>
+                          <button onClick={() => adjustStock(p.id, 1, 'Manual add')} className="px-2 py-1 rounded-lg text-xs bg-emerald-900/40 text-emerald-300 hover:bg-emerald-900 transition font-medium">+1</button>
+                          <button onClick={() => adjustStock(p.id, -1, 'Manual remove')} className="px-2 py-1 rounded-lg text-xs bg-amber-900/40 text-amber-300 hover:bg-amber-900 transition font-medium">-1</button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {filtered.length === 0 && <p className="text-neutral-400 py-8 text-center">No products match.</p>}
+        </section>
+
+        {/* Stats row */}
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+          <div className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/60 to-violet-950/40 p-5 text-center shadow-xl shadow-indigo-500/10">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-indigo-400 mb-1">Products</p>
+            <p className="text-3xl font-extrabold text-white">{products.filter(p=>p.active!==false).length}</p>
+          </div>
+          <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-950/60 to-orange-950/40 p-5 text-center shadow-xl shadow-amber-500/10">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-amber-400 mb-1">Low Stock</p>
+            <p className="text-3xl font-extrabold text-white">{products.filter(p => p.active !== false && stockStatus(p.currentStock, p.minimumStock) === 'low').length}</p>
+          </div>
+          <div className="rounded-2xl border border-red-500/20 bg-gradient-to-br from-red-950/60 to-rose-950/40 p-5 text-center shadow-xl shadow-red-500/10">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-red-400 mb-1">Out of Stock</p>
+            <p className="text-3xl font-extrabold text-white">{products.filter(p => p.active !== false && stockStatus(p.currentStock, p.minimumStock) === 'out').length}</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/60 to-teal-950/40 p-5 text-center shadow-xl shadow-emerald-500/10">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-emerald-400 mb-1">Inventory Value</p>
+            <p className="text-3xl font-extrabold text-white">₹{inventoryValue(products).toFixed(0)}</p>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

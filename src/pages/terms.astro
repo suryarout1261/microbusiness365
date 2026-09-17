@@ -1,0 +1,55 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LandingHeader from '../components/shared/LandingHeader';
+import LandingFooter from '../components/shared/LandingFooter';
+---
+
+<Layout title="Terms of Service">
+  <LandingHeader client:load />
+  <main class="min-h-screen bg-white dark:bg-[#0a0a0a]">
+    <div class="mx-auto max-w-3xl px-6 py-16 md:py-24">
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">Terms of Service</h1>
+      <p class="text-sm text-gray-500 dark:text-neutral-400 mb-12">Last updated: September 2026</p>
+
+      <div class="prose prose-gray dark:prose-invert max-w-none space-y-10 text-gray-700 dark:text-neutral-300">
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">1. Acceptance of Terms</h2>
+          <p class="leading-relaxed">By accessing or using MicroBusiness365, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, please do not use the website.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">2. Local-First Service</h2>
+          <p class="leading-relaxed">MicroBusiness365 is a local-first tool. Your business data — sales, inventory, customers, expenses, and invoices — is stored in your own browser and on your own device. We do not have servers that receive or store your data. Deleting your browser data erases the records stored locally.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">3. No Warranty</h2>
+          <p class="leading-relaxed">All tools and features are provided "as is" and "as available" without warranties of any kind, whether express or implied. We make no guarantee that the calculators, generators, or managers are free of errors or that results are fit for any particular purpose. Use outputs at your own discretion and verify important figures independently.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">4. Limitation of Liability</h2>
+          <p class="leading-relaxed">To the fullest extent permitted by law, MicroBusiness365 and its contributors shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits, revenues, data, or goodwill arising from your use of, or inability to use, the service. Since your data lives on your own device, we encourage you to maintain your own backups.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">5. Acceptable Use</h2>
+          <p class="leading-relaxed">You agree not to misuse the service, attempt to break or reverse-engineer it, or use it for any unlawful purpose. You are responsible for any data you enter and any use you make of the service.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">6. Changes to These Terms</h2>
+          <p class="leading-relaxed">We may update these Terms from time to time. Changes take effect when published on this page. Continued use of the service after changes constitutes acceptance of the revised terms.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">7. Contact</h2>
+          <p class="leading-relaxed">Questions about these Terms? Reach out through our <a href="/contact" class="text-indigo-600 dark:text-indigo-400 hover:underline">Contact page</a>.</p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+  <LandingFooter />
+</Layout>

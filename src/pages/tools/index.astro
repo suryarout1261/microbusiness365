@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import LandingHeader from '../../components/shared/LandingHeader';
+import LandingFooter from '../../components/shared/LandingFooter';
+import ToolsGrid from '../../components/shared/ToolsGrid';
+---
+<Layout title="Tools — MicroBusiness365">
+  <LandingHeader client:load />
+
+  <div class="pt-8 pb-16 px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-12">
+      <h1 class="text-[32px] md:text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] dark:text-white mb-3">Business Tools</h1>
+      <p class="text-base text-[var(--color-text-secondary)] dark:text-neutral-400">Calculators and generators for your micro-business.</p>
+    </div>
+    <ToolsGrid />
+  </div>
+
+  <LandingFooter />
+</Layout>

@@ -1,0 +1,94 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LandingHeader from '../components/shared/LandingHeader';
+import LandingFooter from '../components/shared/LandingFooter';
+
+const posts = [
+  {
+    slug: 'record-expenses-first',
+    title: 'Record expenses before revenue — a simple mental shift',
+    excerpt: 'Most small businesses track sales first and expenses later. Here is why flipping the order changes how you see your cash flow.',
+    date: 'September 12, 2026',
+    read: '4 min read',
+    tag: 'Money habits',
+  },
+  {
+    slug: 'local-first-business-tools',
+    title: 'Why local-first tools are great for small shops',
+    excerpt: 'No server, no login, no monthly fee. Your data on your device. Here is what "local-first" actually means for your business.',
+    date: 'August 28, 2026',
+    read: '5 min read',
+    tag: 'Guides',
+  },
+  {
+    slug: 'understanding-gst-markup',
+    title: 'GST vs markup: two numbers people mix up',
+    excerpt: 'One is a tax added on top, the other is how you price above cost. A plain-language breakdown with quick examples.',
+    date: 'August 10, 2026',
+    read: '6 min read',
+    tag: 'Explainer',
+  },
+  {
+    slug: 'invoicing-without-accounting-software',
+    title: 'Invoicing without expensive accounting software',
+    excerpt: 'You can create and print clean invoices with a browser and a free tool. How to set up a simple, repeatable system.',
+    date: 'July 22, 2026',
+    read: '4 min read',
+    tag: 'Guides',
+  },
+  {
+    slug: 'pricing-for-profit-margin-methods',
+    title: 'Markup, margin, and break-even: pricing methods explained',
+    excerpt: 'Three pricing lenses every shop owner should know, with formulas you can use today.',
+    date: 'July 4, 2026',
+    read: '7 min read',
+    tag: 'Explainer',
+  },
+];
+
+const featured = posts[0];
+const rest = posts.slice(1);
+---
+
+<Layout title="Blog — MicroBusiness365">
+  <LandingHeader client:load />
+  <main class="min-h-screen bg-white dark:bg-[#0a0a0a]">
+    <div class="mx-auto max-w-6xl px-6 py-16 md:py-24">
+      <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-fuchsia-50 dark:bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-300 mb-6">Blog</span>
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">Ideas for running a small business</h1>
+      <p class="text-lg text-gray-500 dark:text-neutral-400 max-w-2xl leading-relaxed mb-16">Practical, jargon-free notes on money, pricing, and running a small shop without the overhead.</p>
+
+      <!-- Featured post -->
+      <a href={`/blogs/${featured.slug}`} class="group block rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-900 p-8 md:p-10 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/5 transition-all mb-10">
+        <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-neutral-400 mb-4">
+          <span class="px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-semibold uppercase tracking-wider">{featured.tag}</span>
+          <span>Featured</span>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{featured.title}</h2>
+        <p class="text-gray-500 dark:text-neutral-400 leading-relaxed mb-4 max-w-2xl">{featured.excerpt}</p>
+        <div class="flex items-center gap-3 text-xs text-gray-400 dark:text-neutral-500">
+          <span>{featured.date}</span>
+          <span>•</span>
+          <span>{featured.read}</span>
+        </div>
+      </a>
+
+      <!-- Post grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+        {rest.map((post) => (
+          <a key={post.slug} href={`/blogs/${post.slug}`} class="group rounded-2xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/5 transition-all">
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider mb-4 bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-300">{post.tag}</span>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{post.title}</h3>
+            <p class="text-sm text-gray-500 dark:text-neutral-400 leading-relaxed mb-4">{post.excerpt}</p>
+            <div class="flex items-center gap-3 text-xs text-gray-400 dark:text-neutral-500">
+              <span>{post.date}</span>
+              <span>•</span>
+              <span>{post.read}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </main>
+  <LandingFooter />
+</Layout>

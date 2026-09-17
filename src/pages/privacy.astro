@@ -1,0 +1,60 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LandingHeader from '../components/shared/LandingHeader';
+import LandingFooter from '../components/shared/LandingFooter';
+---
+
+<Layout title="Privacy Policy">
+  <LandingHeader client:load />
+  <main class="min-h-screen bg-white dark:bg-[#0a0a0a]">
+    <div class="mx-auto max-w-3xl px-6 py-16 md:py-24">
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">Privacy Policy</h1>
+      <p class="text-sm text-gray-500 dark:text-neutral-400 mb-12">Last updated: September 2026</p>
+
+      <div class="space-y-10 text-gray-700 dark:text-neutral-300">
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Our Promise</h2>
+          <p class="leading-relaxed">MicroBusiness365 is ad-free and does not require an account. We designed it so your business data stays with you. This policy explains, in plain language, what does — and does not — happen with your information.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">What We Do Not Collect</h2>
+          <ul class="list-disc pl-6 space-y-2 leading-relaxed">
+            <li>We do not collect or store your business data (sales, customers, inventory, expenses, invoices) on any server. Records are saved only in your browser's local storage on your device.</li>
+            <li>We do not require an account, email address, or phone number to use the tools.</li>
+            <li>We do not display ads or sell data to advertisers.</li>
+            <li>We do not use tracking cookies for advertising or profiling.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">What Little We Do Use</h2>
+          <p class="leading-relaxed">To keep the site functional, we store a small preference in your browser indicating whether you prefer light or dark mode. This is stored locally under the key <code class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-neutral-800 text-xs">mb365-theme</code> and never leaves your device.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Local Storage &amp; Your Control</h2>
+          <p class="leading-relaxed">All data is kept in your browser's local storage. You can clear it at any time through your browser settings, which permanently deletes the records from that browser. Clearing site data will erase both your theme preference and any business data you have entered.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Third Parties</h2>
+          <p class="leading-relaxed">We do not embed third-party tracking or analytics scripts. The site does not send your data to external services.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Changes to This Policy</h2>
+          <p class="leading-relaxed">If we ever change how we handle data, we will update this page. Because the service is local-first, changes here will rarely be needed.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Contact</h2>
+          <p class="leading-relaxed">Privacy questions are welcome through our <a href="/contact" class="text-indigo-600 dark:text-indigo-400 hover:underline">Contact page</a>.</p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+  <LandingFooter />
+</Layout>

@@ -9,11 +9,11 @@ export default function HeroSection() {
           Simple tools for <br />
           <span className="bg-gradient-to-r from-indigo-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">small businesses.</span>
         </h1>
-        <p className="text-lg md:text-xl text-neutral-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p className="text-lg md:text-xl text-[var(--color-text-secondary)] dark:text-neutral-300 max-w-2xl mx-auto mb-10 leading-relaxed">
           Manage sales, inventory, customers, expenses and invoices — <strong className="text-white font-medium">with no sign in, no ads, no hassle.</strong> Your data stays on this device.
         </p>
         <SearchBar />
-        <div className="mt-6 flex items-center justify-center gap-6 text-xs text-neutral-500">
+        <div className="mt-6 flex items-center justify-center gap-6 text-xs text-[var(--color-text-muted)] dark:text-neutral-500">
           <span>✓ No account needed</span>
           <span>✓ Works offline</span>
           <span>✓ Free forever</span>

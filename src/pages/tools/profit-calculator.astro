@@ -1,0 +1,16 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import LandingHeader from '../../components/shared/LandingHeader';
+
+import LandingFooter from '../../components/shared/LandingFooter';
+import ProfitCalculator from '../../components/tools/calculators/ProfitCalculator';
+---
+<Layout title="Profit Calculator — MicroBusiness365">
+  <LandingHeader client:load />
+  
+  <div class="pt-24 pb-16 px-6 max-w-xl mx-auto">
+    <ProfitCalculator client:load />
+  </div>
+    
+  <LandingFooter />
+</Layout>

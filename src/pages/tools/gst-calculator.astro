@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import LandingFooter from '../../components/shared/LandingFooter';
+import LandingHeader from '../../components/shared/LandingHeader';
+
+import GSTCalculator from '../../components/tools/calculators/GSTCalculator';
+---
+<Layout title="GST Calculator - MicroBusiness365">
+  <LandingHeader client:load />
+  
+  
+  <main class="w-full pt-24 pb-16 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl xl:max-w-6xl 2xl:max-w-7xl w-full">
+      <GSTCalculator client:load />
+    </div>
+    </main>
+  
+  <LandingFooter />
+</Layout>

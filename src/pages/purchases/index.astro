@@ -1,4 +1,27 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import AppShell from '../../components/app/AppShell';
+import LandingHeader from '../../components/shared/LandingHeader';
+import PurchaseManager from '../../components/shared/PurchaseManager';
 ---
-<Layout title="Purchases"><div class="max-w-5xl mx-auto p-6"><h1 class="text-2xl font-bold mb-2">Purchases</h1><p class="text-neutral-400 mb-6">Track what you buy from suppliers.</p><div class="rounded-xl border border-neutral-800 bg-neutral-950 p-8 text-center"><h3 class="text-lg font-medium">No purchases yet</h3><p class="text-sm text-neutral-500 mt-1">Record purchases to increase inventory and track supplier balances.</p><button onclick="alert('New purchase — Dexie ready')" class="mt-4 px-4 py-2 bg-white text-black rounded text-sm">New Purchase</button></div></div></Layout>
+<Layout title="Purchase Management">
+  <LandingHeader client:load />
+  <AppShell pathname={Astro.url.pathname}>
+
+  <div class="flex min-h-screen bg-[var(--color-surface)] dark:bg-[#0a0a0a]">
+    <main class="flex-1 min-w-0">
+        <div class="mx-auto max-w-6xl">
+          <div class="max-w-5xl px-6 pt-8 pb-16">
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 mb-4">Purchases</span>
+            <h1 class="text-[32px] md:text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] dark:text-white mb-4">Purchases</h1>
+            <p class="text-base text-[var(--color-text-secondary)] dark:text-neutral-400 leading-relaxed mb-2 max-w-3xl">Log incoming stock, supplier orders, and cost tracking by item or vendor.</p>
+            <p class="text-base text-[var(--color-text-secondary)] dark:text-neutral-400 leading-relaxed max-w-3xl">Understand your true cost of goods sold without complicated spreadsheets.</p>
+          </div>
+        </div>
+        <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+          <PurchaseManager client:load />
+        </div>
+    </main>
+  </div>
+  </AppShell>
+</Layout>

@@ -49,29 +49,29 @@ export default function Dashboard() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex gap-2 flex-wrap">
           {(['today', '7d', 'month', 'year', 'all'] as Period[]).map((p) => (
-            <button key={p} onClick={() => setPeriod(p)} className={`px-3 py-1.5 rounded-[6px] text-xs font-medium border ${period === p ? 'bg-white text-black border-white' : 'bg-transparent text-neutral-400 border-neutral-800 hover:border-neutral-600'}`}>{p === 'all' ? 'All time' : p}</button>
+            <button key={p} onClick={() => setPeriod(p)} className={`px-3 py-1.5 rounded-[6px] text-xs font-medium border ${period === p ? 'bg-white text-black border-white' : 'bg-transparent text-[var(--color-text-secondary)] dark:text-neutral-400 border-[var(--color-border)] dark:border-neutral-800 hover:border-neutral-600'}`}>{p === 'all' ? 'All time' : p}</button>
           ))}
         </div>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
-            <h3 className="text-sm text-neutral-400 mb-1">{c.label}</h3>
-            <p className={`text-2xl font-semibold ${c.accent === false ? 'text-red-400' : 'text-white'}`}>{c.value}</p>
+          <div key={c.label} className="rounded-xl border border-[var(--color-border)] dark:border-neutral-800 bg-[var(--color-surface-raised)] dark:bg-neutral-950 p-5">
+            <h3 className="text-sm text-[var(--color-text-secondary)] dark:text-neutral-400 mb-1">{c.label}</h3>
+            <p className={`text-2xl font-semibold ${c.accent === false ? 'text-red-400' : 'text-[var(--color-text-primary)] dark:text-white'}`}>{c.value}</p>
           </div>
         ))}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
+        <div className="rounded-xl border border-[var(--color-border)] dark:border-neutral-800 bg-[var(--color-surface-raised)] dark:bg-neutral-950 p-5">
           <h3 className="font-semibold mb-3">Alerts</h3>
           {lowStock > 0 && <p className="text-sm text-amber-300 mb-2">⚠ {lowStock} product{lowStock > 1 ? 's' : ''} running low</p>}
-          {customerOwed > 0 && <p className="text-sm text-neutral-300 mb-2">₹{customerOwed.toFixed(2)} still due from customers</p>}
-          {lowStock === 0 && customerOwed === 0 && <p className="text-sm text-neutral-500">All clear — nothing needs attention.</p>}
+          {customerOwed > 0 && <p className="text-sm text-[var(--color-text-primary)] dark:text-neutral-300 mb-2">₹{customerOwed.toFixed(2)} still due from customers</p>}
+          {lowStock === 0 && customerOwed === 0 && <p className="text-sm text-[var(--color-text-muted)] dark:text-neutral-500">All clear — nothing needs attention.</p>}
         </div>
-        <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
+        <div className="rounded-xl border border-[var(--color-border)] dark:border-neutral-800 bg-[var(--color-surface-raised)] dark:bg-neutral-950 p-5">
           <h3 className="font-semibold mb-3">Inventory value</h3>
-          <p className="text-2xl font-semibold text-white">₹{inventoryValue.toFixed(2)}</p>
-          <p className="text-xs text-neutral-500 mt-1">At cost ({products.filter((p) => p.type !== 'service').length} items)</p>
+          <p className="text-2xl font-semibold text-[var(--color-text-primary)] dark:text-white">₹{inventoryValue.toFixed(2)}</p>
+          <p className="text-xs text-[var(--color-text-muted)] dark:text-neutral-500 mt-1">At cost ({products.filter((p) => p.type !== 'service').length} items)</p>
         </div>
       </div>
     </div>

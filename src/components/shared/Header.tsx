@@ -10,11 +10,11 @@ export default function Header({ currentPath = '/' }: HeaderProps) {
   const [search, setSearch] = useState('');
 
   return (
-    <header className="flex items-center justify-between px-6 py-3 border-b border-neutral-800 bg-neutral-900/60 backdrop-blur-md sticky top-0 z-10">
-      <div className="flex items-center gap-3 text-sm text-neutral-400">
+    <header className="flex items-center justify-between px-6 py-3 border-b border-[var(--color-border)] bg-[var(--color-surface-overlay)] backdrop-blur-md sticky top-0 z-10">
+      <div className="flex items-center gap-3 text-sm text-[var(--color-text-secondary)]">
         <span>MicroBusiness365</span>
         <span>/</span>
-        <span className="capitalize text-neutral-300">{currentPath.replace('/', '').replace('-', ' ') || 'Overview'}</span>
+        <span className="capitalize text-[var(--color-text-primary)]">{currentPath.replace('/', '').replace('-', ' ') || 'Overview'}</span>
       </div>
       <div className="flex items-center gap-3">
         <div className="relative w-64 hidden md:block">
@@ -23,7 +23,7 @@ export default function Header({ currentPath = '/' }: HeaderProps) {
             placeholder="Search..."
             value={search}
             onChange={setSearch}
-            className="bg-neutral-950 border-neutral-700 text-sm"
+            className="bg-[var(--color-surface)] border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]"
           />
         </div>
         <Button variant="primary" size="sm">New</Button>

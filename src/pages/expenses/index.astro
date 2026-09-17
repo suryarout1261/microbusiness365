@@ -1,11 +1,27 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import AppShell from '../../components/app/AppShell';
+import LandingHeader from '../../components/shared/LandingHeader';
 import ExpenseManager from '../../components/shared/ExpenseManager';
 ---
-<Layout title="Expenses">
-  <div class="max-w-5xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-1">Expenses</h1>
-    <p class="text-neutral-400 mb-6">Track costs that affect your profit.</p>
-    <ExpenseManager client:load />
+<Layout title="Expenses - MicroBusiness365">
+  <LandingHeader client:load />
+  <AppShell pathname={Astro.url.pathname}>
+
+  <div class="flex min-h-screen bg-[var(--color-surface)] dark:bg-[#0a0a0a]">
+    <main class="flex-1 min-w-0">
+        <div class="mx-auto max-w-6xl">
+          <div class="max-w-5xl px-6 pt-8 pb-16">
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 mb-4">Expenses</span>
+            <h1 class="text-[32px] md:text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] dark:text-white mb-4">Expenses</h1>
+            <p class="text-base text-[var(--color-text-secondary)] dark:text-neutral-400 leading-relaxed mb-2 max-w-3xl">Record business costs, categorize spending, and review trends over time.</p>
+            <p class="text-base text-[var(--color-text-secondary)] dark:text-neutral-400 leading-relaxed max-w-3xl">See where money goes and make faster decisions about your business.</p>
+          </div>
+        </div>
+        <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-16">
+          <ExpenseManager client:load />
+        </div>
+    </main>
   </div>
+  </AppShell>
 </Layout>

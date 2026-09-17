@@ -13,7 +13,9 @@ export function useTheme() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem('mb365-theme', theme);
+    try {
+      localStorage.setItem('mb365-theme', theme);
+    } catch (e) {}
   }, [theme]);
 
   return { theme, setTheme, toggle: () => setTheme((t) => (t === 'dark' ? 'light' : 'dark')) };

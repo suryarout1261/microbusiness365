@@ -16,6 +16,7 @@ export interface Customer {
 export interface Supplier {
   id: string; name: string; phone?: string; email?: string; address?: string;
   gstin?: string; notes?: string; openingBalance: number; creditLimit?: number;
+  supplyTypes?: string[]; // Array of category IDs for types of supplies
   createdAt: string; updatedAt: string;
 }
 
@@ -64,7 +65,7 @@ export interface PurchaseItem {
 
 export interface Invoice {
   id: string; invoiceNumber: string; saleId?: string; customerId?: string; date: string;
-  subtotal: number; tax: number; total: number; status: 'draft' | 'sent' | 'paid' | 'overdue';
+  subtotal: number; tax: number; total: number; status: 'draft' | 'sent' | 'paid' | 'partial' | 'pending' | 'overdue';
   notes?: string; createdAt: string;
 }
 

@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import LandingFooter from '../../components/shared/LandingFooter';
+import LandingHeader from '../../components/shared/LandingHeader';
+
+import ReceiptGenerator from '../../components/tools/generators/ReceiptGenerator';
+---
+<Layout title="Receipt Generator — MicroBusiness365">
+  <LandingHeader client:load />
+  
+  <main class="pt-8 pb-16 px-6">
+    <div class="mx-auto max-w-4xl">
+      <h1 class="text-[32px] font-extrabold leading-tight tracking-tight text-[var(--color-text-primary)] dark:text-white mb-2">Receipt Generator</h1>
+      <ReceiptGenerator client:load />
+    </div>
+    </main>
+  
+  <LandingFooter />
+</Layout>

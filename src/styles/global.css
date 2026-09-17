@@ -3,16 +3,28 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+.inventory-section { font-family: var(--font-sans); }
+.inventory-section h2, .inventory-section header h2 { font-family: var(--font-sans); letter-spacing: -0.02em; }
+.customer-section { font-family: var(--font-sans); }
+.customer-section h2, .customer-section header h2 { font-family: var(--font-sans); letter-spacing: -0.02em; }
+
 html { scroll-behavior: smooth; }
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 200ms ease, color 200ms ease;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+.dark body {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb { background: #27272a; }
 
 *:focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; }

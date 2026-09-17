@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LandingHeader from '../components/shared/LandingHeader';
+import LandingFooter from '../components/shared/LandingFooter';
+---
+
+<Layout title="Contact Us">
+  <LandingHeader client:load />
+  <main class="min-h-screen bg-white dark:bg-[#0a0a0a]">
+    <div class="mx-auto max-w-2xl px-6 py-16 md:py-24">
+      <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 mb-6">Contact</span>
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">We'd love to hear from you</h1>
+      <p class="text-lg text-gray-500 dark:text-neutral-400 leading-relaxed mb-12">Found a bug, want a new tool, or just have feedback? Send us a message and we'll get back to you.</p>
+
+      <form action="#" method="post" class="bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1.5">Name</label>
+          <input id="name" name="name" type="text" required placeholder="Your name" class="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 text-sm text-gray-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all" />
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1.5">Email</label>
+          <input id="email" name="email" type="email" required placeholder="you@example.com" class="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 text-sm text-gray-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all" />
+        </div>
+        <div>
+          <label for="message" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1.5">Message</label>
+          <textarea id="message" name="message" rows="5" required placeholder="How can we help?" class="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 text-sm text-gray-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all resize-y"></textarea>
+        </div>
+        <div>
+          <button type="submit" class="w-full px-4 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all">Send message</button>
+        </div>
+        <p class="text-xs text-gray-400 dark:text-neutral-500 text-center">Since this site is fully local-first, your message goes directly to us — but we're working on wiring up the inbox. In the meantime, we'd still love your note.</p>
+      </form>
+    </div>
+  </main>
+  <LandingFooter />
+</Layout>
