@@ -1,0 +1,30 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AppHeader from '../../components/app/AppHeader';
+import AppShell from '../../components/app/AppShell';
+import AccountManager from '../../components/account/AccountManager';
+---
+
+<Layout title="My Account & Subscription — MicroBusiness365">
+  <AppShell client:load pathname="/account">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)] dark:border-neutral-800 pb-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] dark:text-white tracking-tight">
+            Account & Cloud Subscription
+          </h1>
+          <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+            Manage your account settings, business synchronization, cloud usage, and subscription plans.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <a href="/pricing" className="app-btn-primary text-xs py-2 px-3.5">
+            <span>⚡ Upgrade Plan</span>
+          </a>
+        </div>
+      </div>
+
+      <AccountManager client:load />
+    </div>
+  </AppShell>
+</Layout>

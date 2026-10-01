@@ -1,0 +1,25 @@
+---
+interface Props {
+  badge: string;
+  title: string;
+  description: string;
+}
+
+const { badge, title, description } = Astro.props;
+---
+
+<header class="border-b border-[var(--color-border)] dark:border-neutral-800/80 pb-6 mb-8">
+  <div class="flex flex-col gap-1.5">
+    <div>
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+        {badge}
+      </span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)] dark:text-white mt-1">
+      {title}
+    </h1>
+    <p class="text-sm sm:text-base text-[var(--color-text-secondary)] dark:text-neutral-400 leading-relaxed max-w-3xl">
+      {description}
+    </p>
+  </div>
+</header>

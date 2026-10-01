@@ -1,66 +1,16 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import LandingHeader from '../components/shared/LandingHeader';
-import AppShell from '../components/app/AppShell';
+import AppLayout from '../layouts/AppLayout.astro';
+import PageHeader from '../components/shared/PageHeader.astro';
+import Dashboard from '../components/shared/Dashboard';
 ---
 
-<Layout title="Overview — MicroBusiness365">
-  <LandingHeader client:load />
-  <AppShell pathname={Astro.url.pathname}>
-    <main class="w-full pt-6 pb-16 px-4 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-6xl space-y-10">
-        <div class="flex items-end justify-between gap-4">
-          <div>
-            <h1 class="text-[32px] font-extrabold leading-tight tracking-tight text-[var(--color-text-primary)] dark:text-white mb-2">Overview</h1>
-            <p class="text-base text-[var(--color-text-secondary)] dark:text-neutral-400 leading-relaxed">Manage your business data securely.</p>
-            <p class="text-sm text-[var(--color-text-muted)] mt-1">A clean summary of your business for today.</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-6 shadow-sm">
-            <div class="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)] mb-2">Total Sales</div>
-            <div class="text-3xl font-semibold tracking-tight">$12,450</div>
-            <div class="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">+8.2%</div>
-          </div>
-          <div class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-6 shadow-sm">
-            <div class="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)] mb-2">Expenses</div>
-            <div class="text-3xl font-semibold tracking-tight">$4,210</div>
-            <div class="text-sm text-red-500 dark:text-red-400 font-medium mt-1">-2.1%</div>
-          </div>
-          <div class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-6 shadow-sm">
-            <div class="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)] mb-2">Profit</div>
-            <div class="text-3xl font-semibold tracking-tight">$8,240</div>
-            <div class="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">+12.4%</div>
-          </div>
-          <div class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-6 shadow-sm">
-            <div class="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)] mb-2">Customers</div>
-            <div class="text-3xl font-semibold tracking-tight">42</div>
-            <div class="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">+4</div>
-          </div>
-        </div>
-
-        <section class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-6 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="font-semibold tracking-tight">Recent Activity</h2>
-            <a href="#" class="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]">View all</a>
-          </div>
-          <table class="w-full text-sm">
-            <thead class="bg-[var(--color-surface-overlay)] text-[var(--color-text-muted)] text-left">
-              <tr>
-                <th class="px-5 py-2 font-medium">Item</th>
-                <th class="px-5 py-2 font-medium">Type</th>
-                <th class="px-5 py-2 font-medium text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-[var(--color-border)]">
-              <tr><td class="px-5 py-3">Invoice #1024</td><td class="px-5 py-3 text-[var(--color-text-muted)]">Sale</td><td class="px-5 py-3 text-right">$1,200</td></tr>
-              <tr><td class="px-5 py-3">Customer: Acme Corp</td><td class="px-5 py-3 text-[var(--color-text-muted)]">Contact</td><td class="px-5 py-3 text-right">—</td></tr>
-              <tr><td class="px-5 py-3">Expense: Supplies</td><td class="px-5 py-3 text-[var(--color-text-muted)]">Expense</td><td class="px-5 py-3 text-right">$340</td></tr>
-            </tbody>
-          </table>
-        </section>
-      </div>
-    </main>
-  </AppShell>
-</Layout>
+<AppLayout title="Overview — MicroBusiness365">
+  <div class="space-y-6">
+    <PageHeader
+      badge="Overview"
+      title="Business Overview"
+      description="Real-time summary of sales, expenses, cash flow, and key operational metrics."
+    />
+    <Dashboard client:load />
+  </div>
+</AppLayout>

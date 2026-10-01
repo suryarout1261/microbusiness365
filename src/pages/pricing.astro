@@ -1,0 +1,90 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LandingHeader from '../components/shared/LandingHeader';
+import PricingCards from '../components/pricing/PricingCards';
+
+const faqs = [
+  {
+    q: 'Can I use MicroBusiness365 completely free without signing in?',
+    a: 'Yes! MicroBusiness365 is 100% free and functional in Local Mode using your browser’s local IndexedDB database. You can manage sales, inventory, customers, invoices, and payments offline with zero sign-in.',
+  },
+  {
+    q: 'What is the benefit of upgrading to a Cloud Plan?',
+    a: 'Cloud plans allow you to automatically back up your business data to secure encrypted cloud storage, access your store from multiple devices (phone, laptop, tablet), and collaborate with team members in real-time.',
+  },
+  {
+    q: 'Will I lose my local data if my subscription expires or is cancelled?',
+    a: 'Never! Your data is always saved locally in your browser’s Dexie IndexedDB. If your subscription expires, your data remains 100% accessible locally and offline.',
+  },
+  {
+    q: 'How does payment processing work?',
+    a: 'Payments are processed securely through Razorpay supporting UPI (GooglePay, PhonePe, Paytm), Credit/Debit Cards, Net Banking, and Wallet payments. All transactions are cryptographically verified on our servers.',
+  },
+  {
+    q: 'Can I upgrade or switch plans later?',
+    a: 'Yes! You can upgrade anytime. Your new limits will become active immediately upon successful verification.',
+  },
+];
+---
+
+<Layout title="Plans & Pricing — MicroBusiness365">
+  <LandingHeader client:load />
+
+  <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-16">
+    <!-- Header Section -->
+    <div className="text-center max-w-3xl mx-auto space-y-4">
+      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+        <span>Simple, Transparent Pricing</span>
+      </div>
+      <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[var(--color-text-primary)] dark:text-white">
+        Start Free Locally, Upgrade for <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">Multi-Device Cloud</span>
+      </h1>
+      <p className="text-sm sm:text-base text-[var(--color-text-secondary)] dark:text-neutral-400 leading-relaxed">
+        Choose the plan that fits your business scale. No hidden fees, cancel anytime, and retain full local ownership of your records.
+      </p>
+    </div>
+
+    <!-- Pricing Cards Component -->
+    <PricingCards client:load />
+
+    <!-- FAQ Section -->
+    <div className="max-w-4xl mx-auto pt-8 border-t border-[var(--color-border)] dark:border-neutral-800 space-y-8">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold text-[var(--color-text-primary)] dark:text-white">
+          Frequently Asked Questions
+        </h2>
+        <p className="text-xs sm:text-sm text-[var(--color-text-muted)] dark:text-neutral-400">
+          Everything you need to know about our local and cloud subscription tiers.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {faqs.map((faq, i) => (
+          <div
+            key={i}
+            className="p-5 rounded-2xl border border-[var(--color-border)] dark:border-neutral-800 bg-[var(--color-surface-raised)] dark:bg-[#111111] space-y-2 shadow-sm"
+          >
+            <h3 className="font-bold text-sm text-[var(--color-text-primary)] dark:text-white">
+              {faq.q}
+            </h3>
+            <p className="text-xs text-[var(--color-text-secondary)] dark:text-neutral-400 leading-relaxed">
+              {faq.a}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer className="border-t border-gray-200 dark:border-neutral-800 bg-white/50 dark:bg-[#0a0a0a]/50 py-8 text-center text-xs text-[var(--color-text-muted)]">
+    <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="font-semibold text-[var(--color-text-primary)]">MicroBusiness365 Cloud SaaS</div>
+      <div className="flex gap-4">
+        <a href="/app" className="hover:text-indigo-600 transition">Workspace</a>
+        <a href="/terms" className="hover:text-indigo-600 transition">Terms of Service</a>
+        <a href="/privacy" className="hover:text-indigo-600 transition">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+</Layout>

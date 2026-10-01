@@ -7,11 +7,42 @@ const { title } = Astro.props;
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="description" content="MicroBusiness365 — simple business tools for sales, inventory, customers, invoices, and expenses. No sign-in, no ads, local-first." />
-    <meta name="keywords" content="invoice generator, receipt generator, sales calculator, inventory manager, small business tools, GST calculator, ROI calculator" />
-    <meta property="og:title" content="MicroBusiness365 — Simple tools for small businesses" />
-    <meta property="og:description" content="Manage sales, inventory, customers, expenses, and invoices with no account required." />
+    <meta name="description" content="MicroBusiness365 is a free, all-in-one small business management software & app. Track sales, inventory, customers, expenses, invoices, and payments offline with zero sign-in." />
+    <meta name="keywords" content="small business management software, business management software, small business management app, free business management software, small business software, business management system, small business management tool, business management app, free small business software, micro business management software, micro business software, all in one small business software, small business invoicing software, small business inventory management software, small business expense management software, small business customer management software, small business sales management software, small business payment tracking software, offline business management software, free business tools for small business, invoice generator, receipt generator, GST calculator, inventory manager" />
+    <meta name="author" content="MicroBusiness365" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="MicroBusiness365 — Free Small Business Management Software & App" />
+    <meta property="og:description" content="All-in-one small business software for sales, inventory, invoicing, expenses, and payment tracking. 100% offline, local-first, free with no sign-in required." />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MicroBusiness365" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MicroBusiness365 — Free Small Business Management Software" />
+    <meta name="twitter:description" content="Free all-in-one business management app for small & micro businesses. Sales, inventory, expenses, invoices, and payments." />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "MicroBusiness365",
+        "url": "https://microbusiness365.com",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "All (Web Browser, Offline Local-First)",
+        "description": "Free, all-in-one small business management software & offline app for invoicing, inventory, sales, expenses, and payment tracking.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Small business sales management software",
+          "Small business inventory management software",
+          "Small business invoicing software",
+          "Small business expense management software",
+          "Small business customer management software",
+          "Small business payment tracking software",
+          "Offline business management software"
+        ]
+      }
+    </script>
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -20,7 +51,7 @@ const { title } = Astro.props;
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title ? `${title} — MicroBusiness365` : 'MicroBusiness365'}</title>
+    <title>{title ? `${title} — MicroBusiness365` : 'MicroBusiness365 — Free Small Business Management Software'}</title>
     <script is:inline>
       (function() {
         try {

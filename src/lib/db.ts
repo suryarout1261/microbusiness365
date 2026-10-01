@@ -64,9 +64,10 @@ export interface PurchaseItem {
 }
 
 export interface Invoice {
-  id: string; invoiceNumber: string; saleId?: string; customerId?: string; date: string;
-  subtotal: number; tax: number; total: number; status: 'draft' | 'sent' | 'paid' | 'partial' | 'pending' | 'overdue';
-  notes?: string; createdAt: string;
+  id: string; invoiceNumber: string; invoiceNo?: string; saleId?: string; customerId?: string; customerName?: string; date?: string;
+  dueDate?: string; subtotal: number; tax: number; total: number; paidAmount?: number; dueAmount?: number;
+  status: 'draft' | 'sent' | 'paid' | 'partial' | 'pending' | 'overdue';
+  notes?: string; items?: any[]; createdAt: string; updatedAt?: string;
 }
 
 export interface Quotation {
@@ -86,9 +87,27 @@ export interface Expense {
 }
 
 export interface Payment {
-  id: string; referenceType: 'sale' | 'purchase'; referenceId: string;
+  id: string; paymentNumber?: string; referenceType: 'sale' | 'purchase' | 'expense'; referenceId: string;
   customerId?: string; supplierId?: string; amount: number; date: string;
   method: string; notes?: string; direction: 'in' | 'out'; createdAt: string;
+}
+
+export interface SyncQueueItem {
+  id: string;
+  table: string;
+  entityId: string;
+  action: 'insert' | 'update' | 'delete';
+  payload: any;
+  status: 'pending' | 'syncing' | 'failed';
+  retries: number;
+  error?: string;
+  createdAt: string;
+}
+
+export interface SyncMeta {
+  key: string;
+  value: any;
+  updatedAt: string;
 }
 
 class MicroDB extends Dexie {
@@ -107,6 +126,8 @@ class MicroDB extends Dexie {
   quotationItems!: Table<QuotationItem>;
   expenses!: Table<Expense>;
   payments!: Table<Payment>;
+  syncQueue!: Table<SyncQueueItem>;
+  syncMeta!: Table<SyncMeta>;
 
   constructor() {
     super('MicroBusiness365');
@@ -126,6 +147,26 @@ class MicroDB extends Dexie {
       quotationItems: 'id, quotationId, productId',
       expenses: 'id, expenseNumber, category, date, createdAt',
       payments: 'id, referenceType, referenceId, customerId, supplierId, date, direction',
+    });
+
+    this.version(4).stores({
+      business: 'id, createdAt',
+      customers: 'id, name, phone, createdAt',
+      suppliers: 'id, name, phone, createdAt',
+      categories: 'id, type, name',
+      products: 'id, name, sku, categoryId, active, supplierId, createdAt',
+      stockMovements: 'id, productId, type, referenceType, referenceId, date',
+      sales: 'id, saleNumber, customerId, date, paymentStatus, createdAt',
+      saleItems: 'id, saleId, productId',
+      purchases: 'id, purchaseNumber, supplierId, date, paymentStatus, createdAt',
+      purchaseItems: 'id, purchaseId, productId',
+      invoices: 'id, invoiceNumber, saleId, customerId, status, createdAt',
+      quotations: 'id, quotationNumber, customerId, status, createdAt',
+      quotationItems: 'id, quotationId, productId',
+      expenses: 'id, expenseNumber, category, date, createdAt',
+      payments: 'id, referenceType, referenceId, customerId, supplierId, date, direction',
+      syncQueue: 'id, table, entityId, action, status, createdAt',
+      syncMeta: 'key',
     });
   }
 }

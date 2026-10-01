@@ -10,6 +10,8 @@ interface CalculatorLayoutProps {
   chartBars?: { label: string; value: number; color?: string }[];
   onCalculate?: () => void;
   onReset?: () => void;
+  calculateLabel?: string;
+  extraContent?: ReactNode;
 }
 
 export default function CalculatorLayout({
@@ -22,6 +24,8 @@ export default function CalculatorLayout({
   chartBars,
   onCalculate,
   onReset,
+  calculateLabel,
+  extraContent,
 }: CalculatorLayoutProps) {
   const maxBar =
     chartBars && chartBars.length > 0
@@ -72,7 +76,7 @@ export default function CalculatorLayout({
                   type="submit"
                   className="w-full sm:flex-1 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:brightness-110 text-white font-bold py-3.5 px-6 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-indigo-500/25 text-base"
                 >
-                  Calculate
+                  {calculateLabel || 'Calculate'}
                 </button>
 
                 <button
@@ -84,6 +88,12 @@ export default function CalculatorLayout({
                 </button>
               </div>
             </form>
+
+            {extraContent && (
+              <div className="mt-8 border-t border-gray-200 dark:border-neutral-800 pt-6">
+                {extraContent}
+              </div>
+            )}
           </div>
 
           {/* RESULT */}

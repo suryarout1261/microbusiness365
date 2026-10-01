@@ -1,108 +1,352 @@
 import { useEffect, useState } from 'react';
 import { db, type Product } from '../../lib/db';
-import { generateId } from '../../lib/utils';
+import { generateId, blockDecimalKey, blockNegativeKey, sanitizeInteger, sanitizeAmount, sanitizePercentage } from '../../lib/utils';
 
-const EMPTY = { name: '', type: 'physical' as const, unit: 'pcs', purchasePrice: '', sellingPrice: '', taxRate: '', currentStock: '', minimumStock: '', active: true };
+const EMPTY = {
+  name: '',
+  type: 'physical' as const,
+  unit: 'pcs',
+  purchasePrice: '',
+  sellingPrice: '',
+  taxRate: '',
+  currentStock: '',
+  minimumStock: '',
+  active: true,
+};
 
 export default function InventoryManager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [openForm, setOpenForm] = useState(false);
   const [form, setForm] = useState<typeof EMPTY & { id?: string }>(EMPTY);
 
-  useEffect(() => {
-    db.products.toArray().then((all) => { setProducts(all); setLoading(false); });
-  }, []);
+  const load = async () => {
+    try {
+      const all = await db.products.toArray();
+      setProducts(all.sort((a, b) => a.name.localeCompare(b.name)));
+    } catch (err) {
+      console.error('Failed to load products:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
 
   async function save() {
-    if (!form.name.trim()) return;
+    if (!form.name.trim()) {
+      alert('Product name is required.');
+      return;
+    }
     const now = new Date().toISOString();
     const record: Product = {
-      id: form.id || generateId(), name: form.name.trim(), type: form.type, unit: form.unit,
-      purchasePrice: form.purchasePrice === '' ? 0 : Number(form.purchasePrice) || 0,
-      sellingPrice: form.sellingPrice === '' ? 0 : Number(form.sellingPrice) || 0,
-      taxRate: form.taxRate === '' ? 0 : Number(form.taxRate) || 0,
-      currentStock: form.currentStock === '' ? 0 : Number(form.currentStock) || 0,
-      minimumStock: form.minimumStock === '' ? 0 : Number(form.minimumStock) || 0,
-      active: true, createdAt: now, updatedAt: now,
+      id: form.id || generateId(),
+      name: form.name.trim(),
+      type: form.type,
+      unit: form.unit || 'pcs',
+      purchasePrice: form.purchasePrice === '' ? 0 : Math.max(0, Number(form.purchasePrice) || 0),
+      sellingPrice: form.sellingPrice === '' ? 0 : Math.max(0, Number(form.sellingPrice) || 0),
+      taxRate: form.taxRate === '' ? 0 : Math.min(100, Math.max(0, Number(form.taxRate) || 0)),
+      currentStock: form.currentStock === '' ? 0 : Math.max(0, Math.floor(Number(form.currentStock) || 0)),
+      minimumStock: form.minimumStock === '' ? 0 : Math.max(0, Math.floor(Number(form.minimumStock) || 0)),
+      active: true,
+      createdAt: now,
+      updatedAt: now,
     };
     await db.products.put(record);
-    setProducts(form.id ? products.map((p) => (p.id === form.id ? record : p)) : [record, ...products]);
     setForm(EMPTY);
+    setOpenForm(false);
+    load();
   }
 
   function edit(p: Product) {
-    setForm({ id: p.id, name: p.name, type: p.type, unit: p.unit, purchasePrice: p.purchasePrice === 0 ? '' : String(p.purchasePrice), sellingPrice: p.sellingPrice === 0 ? '' : String(p.sellingPrice), taxRate: p.taxRate === 0 ? '' : String(p.taxRate), currentStock: p.currentStock === 0 ? '' : String(p.currentStock), minimumStock: p.minimumStock === 0 ? '' : String(p.minimumStock) });
+    setForm({
+      id: p.id,
+      name: p.name,
+      type: p.type,
+      unit: p.unit,
+      purchasePrice: p.purchasePrice === 0 ? '' : String(p.purchasePrice),
+      sellingPrice: p.sellingPrice === 0 ? '' : String(p.sellingPrice),
+      taxRate: p.taxRate === 0 ? '' : String(p.taxRate),
+      currentStock: p.currentStock === 0 ? '' : String(p.currentStock),
+      minimumStock: p.minimumStock === 0 ? '' : String(p.minimumStock),
+      active: p.active,
+    });
+    setOpenForm(true);
   }
 
   async function remove(id: string) {
+    if (!window.confirm('Delete this product? Historical sales will be preserved.')) return;
     await db.products.delete(id);
-    setProducts(products.filter((p) => p.id !== id));
+    load();
   }
 
-  const filtered = products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
-  const lowStock = products.filter((p) => p.type !== 'service' && p.currentStock <= p.minimumStock).length;
+  const filtered = products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase().trim())
+  );
+  const lowStock = products.filter(
+    (p) => p.type !== 'service' && p.currentStock <= p.minimumStock
+  ).length;
 
   return (
-    <div className="inventory-section space-y-6 font-sans">
+    <div className="space-y-6">
       {lowStock > 0 && (
-        <div className="rounded-xl border border-amber-800/40 bg-amber-950/20 px-4 py-3 text-sm text-amber-200">
-          ⚠ {lowStock} product{lowStock > 1 ? 's are' : ' is'} running low.
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300 font-medium flex items-center gap-2">
+          <span>⚠</span>
+          <span>
+            {lowStock} product{lowStock > 1 ? 's are' : ' is'} below minimum safety stock levels.
+          </span>
         </div>
       )}
-      <div className="flex flex-col md:flex-row gap-3">
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products…" className="flex-1 bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
-        <button onClick={save} className="px-4 py-2 bg-white text-black rounded-[6px] text-sm font-medium hover:bg-neutral-200">+ New product</button>
+
+      {/* Filter and Action Bar */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch justify-between">
+        <div className="flex-1 relative">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search products by title or unit..."
+            className="app-input app-search-input pl-11"
+          />
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)] pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.3-4.3" />
+          </svg>
+        </div>
+        <button
+          onClick={() => {
+            setOpenForm(!openForm);
+            setForm(EMPTY);
+          }}
+          className="app-btn-primary"
+        >
+          {openForm ? '✕ Close Form' : '+ New Product'}
+        </button>
       </div>
-      <div className="rounded-xl border border-[var(--color-border)] dark:border-neutral-800 bg-[var(--color-surface-raised)] dark:bg-neutral-950 p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-        <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Product name *" className="col-span-2 bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
-        <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as any })} className="bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm">
-          <option value="physical">Physical</option><option value="service">Service</option>
-        </select>
-        <input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="Unit" className="bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
-        <input type="number" value={form.purchasePrice} onChange={(e) => setForm({ ...form, purchasePrice: e.target.value })} placeholder="Cost ₹" className="bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
-        <input type="number" value={form.sellingPrice} onChange={(e) => setForm({ ...form, sellingPrice: e.target.value })} placeholder="Sell ₹" className="bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
-        <input type="number" value={form.taxRate} onChange={(e) => setForm({ ...form, taxRate: e.target.value })} placeholder="Tax %" className="bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
-        <input type="number" value={form.currentStock} onChange={(e) => setForm({ ...form, currentStock: e.target.value })} placeholder="Stock" className="bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
-        <input type="number" value={form.minimumStock} onChange={(e) => setForm({ ...form, minimumStock: e.target.value })} placeholder="Min stock" className="bg-[var(--color-surface-overlay)] dark:bg-neutral-900 border border-[var(--color-border)] dark:border-neutral-800 rounded-[6px] px-3 py-2 text-sm" />
-      </div>
-      {loading ? <p className="text-[var(--color-text-muted)] dark:text-neutral-500 text-sm">Loading…</p> : filtered.length === 0 ? (
-        <div className="rounded-xl border border-[var(--color-border)] dark:border-neutral-800 bg-[var(--color-surface-raised)] dark:bg-neutral-950 p-8 text-center text-[var(--color-text-muted)] dark:text-neutral-500">
-          <h3 className="text-lg font-medium text-[var(--color-text-primary)] dark:text-neutral-300">No products yet</h3>
-          <p className="text-sm">Add products to manage stock and sales.</p>
+
+      {/* Form Card */}
+      {openForm && (
+        <div className="app-card space-y-4">
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] dark:border-neutral-800 pb-3">
+            <h2 className="text-base font-bold text-[var(--color-text-primary)] dark:text-white">
+              {form.id ? 'Edit Product' : 'Add New Inventory Item'}
+            </h2>
+            <button
+              onClick={() => { setOpenForm(false); setForm(EMPTY); }}
+              className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-[var(--color-text-secondary)] dark:text-neutral-400 uppercase tracking-wider mb-1">
+                Product Name *
+              </label>
+              <input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="e.g. Copper Wire Reel"
+                className="app-input"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[var(--color-text-secondary)] dark:text-neutral-400 uppercase tracking-wider mb-1">
+                Item Type
+              </label>
+              <select
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value as any })}
+                className="app-input"
+              >
+                <option value="physical">Physical Item</option>
+                <option value="service">Service / Labour</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[var(--color-text-secondary)] dark:text-neutral-400 uppercase tracking-wider mb-1">
+                Unit of Measure
+              </label>
+              <input
+                value={form.unit}
+                onChange={(e) => setForm({ ...form, unit: e.target.value })}
+                placeholder="e.g. pcs, kg, mtrs"
+                className="app-input"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[var(--color-text-secondary)] dark:text-neutral-400 uppercase tracking-wider mb-1">
+                Cost Price (₹)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="any"
+                value={form.purchasePrice === 0 ? '' : form.purchasePrice}
+                onKeyDown={blockNegativeKey}
+                onChange={(e) => setForm({ ...form, purchasePrice: sanitizeAmount(e.target.value) })}
+                placeholder="Cost Price (₹)"
+                className="app-input"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[var(--color-text-secondary)] dark:text-neutral-400 uppercase tracking-wider mb-1">
+                Selling Price (₹)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="any"
+                value={form.sellingPrice === 0 ? '' : form.sellingPrice}
+                onKeyDown={blockNegativeKey}
+                onChange={(e) => setForm({ ...form, sellingPrice: sanitizeAmount(e.target.value) })}
+                placeholder="Selling Price (₹)"
+                className="app-input"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[var(--color-text-secondary)] dark:text-neutral-400 uppercase tracking-wider mb-1">
+                GST / Tax %
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="any"
+                value={form.taxRate === 0 ? '' : form.taxRate}
+                onKeyDown={blockNegativeKey}
+                onChange={(e) => setForm({ ...form, taxRate: sanitizePercentage(e.target.value) })}
+                placeholder="GST % (e.g. 18)"
+                className="app-input"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[var(--color-text-secondary)] dark:text-neutral-400 uppercase tracking-wider mb-1">
+                Current Stock Qty
+              </label>
+              <input
+                type="number"
+                step="1"
+                min="0"
+                disabled={form.type === 'service'}
+                value={form.currentStock === 0 ? '' : form.currentStock}
+                onKeyDown={blockDecimalKey}
+                onChange={(e) => setForm({ ...form, currentStock: sanitizeInteger(e.target.value) })}
+                placeholder="Stock Qty"
+                className="app-input disabled:opacity-50"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[var(--color-text-secondary)] dark:text-neutral-400 uppercase tracking-wider mb-1">
+                Minimum Alert Level
+              </label>
+              <input
+                type="number"
+                step="1"
+                min="0"
+                disabled={form.type === 'service'}
+                value={form.minimumStock === 0 ? '' : form.minimumStock}
+                onKeyDown={blockDecimalKey}
+                onChange={(e) => setForm({ ...form, minimumStock: sanitizeInteger(e.target.value) })}
+                placeholder="Min Alert Qty"
+                className="app-input disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button onClick={() => { setOpenForm(false); setForm(EMPTY); }} className="app-btn-secondary">
+              Cancel
+            </button>
+            <button onClick={save} className="app-btn-primary">
+              Save Product
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Product Table */}
+      {loading ? (
+        <div className="py-12 text-center text-[var(--color-text-muted)]">
+          <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent mb-2"></div>
+          <p className="text-sm">Loading inventory...</p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="app-card p-10 text-center">
+          <h3 className="text-base font-bold text-[var(--color-text-primary)] dark:text-white mb-1">
+            No products found
+          </h3>
+          <p className="text-sm text-[var(--color-text-muted)] dark:text-neutral-400">
+            Add items to track stock, replenishment alerts, and sales.
+          </p>
         </div>
       ) : (
-        <div className="rounded-xl border border-[var(--color-border)] dark:border-neutral-800 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-[var(--color-surface-overlay)] dark:bg-neutral-900 text-[var(--color-text-secondary)] dark:text-neutral-400 text-left">
-              <tr><th className="px-4 py-2 font-medium">Product</th><th className="px-4 py-2 font-medium">Type</th><th className="px-4 py-2 text-right font-medium">Cost</th><th className="px-4 py-2 text-right font-medium">Sell</th><th className="px-4 py-2 text-right font-medium">Stock</th><th className="px-4 py-2"></th></tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-800">
-              {filtered.map((p) => {
-                const low = p.type !== 'service' && p.currentStock <= p.minimumStock;
-                return (
-                  <tr key={p.id}>
-                    <td className="px-4 py-3 text-[var(--color-text-primary)] dark:text-white">{p.name}</td>
-                    <td className="px-4 py-3 text-[var(--color-text-secondary)] dark:text-neutral-400">{p.type}</td>
-                    <td className="px-4 py-3 text-right text-[var(--color-text-secondary)] dark:text-neutral-400">₹{p.purchasePrice.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-neutral-200">₹{p.sellingPrice.toFixed(2)}</td>
-                    <td className={`px-4 py-3 text-right ${low ? 'text-amber-400 font-medium' : 'text-neutral-200'}`}>{p.type === 'service' ? '—' : p.currentStock}</td>
-                    <td className="px-4 py-3 text-right space-x-2">
-                      <button onClick={() => edit(p)} className="text-[var(--color-text-muted)] dark:text-neutral-500 hover:text-[var(--color-text-primary)] dark:text-white text-xs">Edit</button>
-                      <button onClick={() => remove(p.id)} className="text-[var(--color-text-muted)] dark:text-neutral-500 hover:text-red-400 text-xs">Delete</button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="app-card p-0 overflow-hidden">
+          <div className="app-table-container">
+            <table className="w-full text-sm min-w-[680px]">
+              <thead className="bg-[var(--color-surface-overlay)] dark:bg-neutral-900 text-[var(--color-text-secondary)] dark:text-neutral-400 text-left uppercase text-xs font-bold tracking-wider">
+                <tr>
+                  <th className="px-5 py-3 whitespace-nowrap">Product</th>
+                  <th className="px-5 py-3 whitespace-nowrap">Type</th>
+                  <th className="px-5 py-3 text-right whitespace-nowrap">Cost</th>
+                  <th className="px-5 py-3 text-right whitespace-nowrap">Selling</th>
+                  <th className="px-5 py-3 text-right whitespace-nowrap">In Stock</th>
+                  <th className="px-5 py-3 text-right whitespace-nowrap">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-border)] dark:divide-neutral-800">
+                {filtered.map((p) => {
+                  const isLow = p.type !== 'service' && p.currentStock <= p.minimumStock;
+                  return (
+                    <tr key={p.id} className="hover:bg-[var(--color-surface-overlay)]/50 transition">
+                      <td className="px-5 py-3.5 font-semibold text-[var(--color-text-primary)] dark:text-white whitespace-nowrap">
+                        {p.name}
+                      </td>
+                      <td className="px-5 py-3.5 text-xs uppercase font-medium text-[var(--color-text-secondary)] dark:text-neutral-400 whitespace-nowrap">
+                        {p.type}
+                      </td>
+                      <td className="px-5 py-3.5 text-right text-xs text-[var(--color-text-secondary)] dark:text-neutral-400 whitespace-nowrap">
+                        ₹{p.purchasePrice.toFixed(2)}
+                      </td>
+                      <td className="px-5 py-3.5 text-right font-bold text-[var(--color-text-primary)] dark:text-white whitespace-nowrap">
+                        ₹{p.sellingPrice.toFixed(2)}
+                      </td>
+                      <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                        {p.type === 'service' ? (
+                          <span className="text-[var(--color-text-muted)] text-xs">—</span>
+                        ) : (
+                          <span
+                            className={`inline-block font-semibold ${
+                              isLow ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'
+                            }`}
+                          >
+                            {p.currentStock} {p.unit}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3.5 text-right space-x-2 whitespace-nowrap">
+                        <button
+                          onClick={() => edit(p)}
+                          className="px-2.5 py-1 text-xs font-medium rounded-lg border border-[var(--color-border)] dark:border-neutral-700 hover:bg-[var(--color-surface-overlay)] dark:hover:bg-neutral-800 text-[var(--color-text-secondary)] dark:text-neutral-300 transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => remove(p.id)}
+                          className="px-2.5 py-1 text-xs font-medium rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
-      {/* Footer */}
-      <footer className="rounded-xl border border-[var(--color-border)] dark:border-neutral-800 bg-[var(--color-surface-raised)] dark:bg-neutral-950 px-6 py-4 text-xs text-[var(--color-text-muted)] dark:text-neutral-400 flex items-center justify-between">
-        <span>Inventory records managed securely.</span>
-        <span>{filtered.length} item{filtered.length > 1 ? 's' : ''}</span>
-      </footer>
     </div>
   );
 }

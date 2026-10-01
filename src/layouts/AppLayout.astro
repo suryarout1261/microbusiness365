@@ -1,0 +1,113 @@
+---
+import Layout from './Layout.astro';
+import AppHeader from '../components/app/AppHeader';
+import AppSidebar from '../components/app/AppSidebar';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const pathname = Astro.url.pathname;
+---
+<Layout title={title}>
+  <div class="min-h-screen flex flex-col bg-[var(--color-surface)] dark:bg-[#0a0a0a] text-[var(--color-text-primary)]">
+    <AppHeader client:load pathname={pathname} />
+    <div class="flex flex-1 min-h-[calc(100vh-4rem)]">
+      <AppSidebar client:load pathname={pathname} />
+      <main class="flex-1 min-w-0 w-full overflow-x-hidden">
+        <div class="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 relative">
+          <slot />
+        </div>
+      </main>
+    </div>
+    <footer class="w-full border-t border-gray-200 dark:border-neutral-800 bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--color-text-muted)]">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-[var(--color-text-primary)]">MicroBusiness365</span>
+          <span>•</span>
+          <span>Local-first Business Operating System</span>
+        </div>
+        <div class="flex items-center gap-4 text-gray-500 dark:text-neutral-400">
+          <a href="/tools" class="hover:text-indigo-600 transition-colors">Tools</a>
+          <a href="/terms" class="hover:text-indigo-600 transition-colors">Terms</a>
+          <a href="/privacy" class="hover:text-indigo-600 transition-colors">Privacy</a>
+          <span>© {new Date().getFullYear()}</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function setupTableDrag() {
+      const containers = document.querySelectorAll<HTMLElement>('.app-table-container');
+      containers.forEach((container) => {
+        if ((container as any)._hasDragAttached) return;
+        (container as any)._hasDragAttached = true;
+
+        let isDown = false;
+        let startX = 0;
+        let scrollLeft = 0;
+        let dragged = false;
+
+        const updateGrabCursor = () => {
+          if (container.scrollWidth > container.clientWidth) {
+            container.classList.add('cursor-grab');
+          } else {
+            container.classList.remove('cursor-grab');
+          }
+        };
+
+        updateGrabCursor();
+        window.addEventListener('resize', updateGrabCursor, { passive: true });
+
+        container.addEventListener('mousedown', (e: MouseEvent) => {
+          if (e.button !== 0) return;
+          const target = e.target as HTMLElement;
+          if (target.closest('button, a, input, select, textarea, [role="button"]')) return;
+
+          isDown = true;
+          dragged = false;
+          container.classList.add('cursor-grabbing');
+          startX = e.pageX - container.offsetLeft;
+          scrollLeft = container.scrollLeft;
+        });
+
+        const stopDrag = () => {
+          if (!isDown) return;
+          isDown = false;
+          container.classList.remove('cursor-grabbing');
+        };
+
+        window.addEventListener('mouseup', stopDrag);
+
+        window.addEventListener('mousemove', (e: MouseEvent) => {
+          if (!isDown) return;
+          e.preventDefault();
+          const x = e.pageX - container.offsetLeft;
+          const walk = (x - startX) * 1.25;
+          if (Math.abs(walk) > 4) {
+            dragged = true;
+          }
+          container.scrollLeft = scrollLeft - walk;
+        });
+
+        container.addEventListener('click', (e: MouseEvent) => {
+          if (dragged) {
+            e.stopPropagation();
+            dragged = false;
+          }
+        }, true);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupTableDrag);
+    } else {
+      setupTableDrag();
+    }
+
+    const observer = new MutationObserver(() => setupTableDrag());
+    observer.observe(document.body, { childList: true, subtree: true });
+  </script>
+</Layout>

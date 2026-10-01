@@ -1,27 +1,15 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import AppShell from '../../components/app/AppShell';
-import LandingHeader from '../../components/shared/LandingHeader';
+import AppLayout from '../../layouts/AppLayout.astro';
+import PageHeader from '../../components/shared/PageHeader.astro';
 import InvoiceManager from '../../components/invoices/InvoiceManager';
 ---
-<Layout title="Invoices - MicroBusiness365">
-  <LandingHeader client:load />
-  <AppShell pathname={Astro.url.pathname}>
-
-  <div class="flex min-h-screen bg-[var(--color-surface)] dark:bg-[#0a0a0a]">
-    <main class="flex-1 min-w-0">
-        <div class="mx-auto max-w-6xl">
-          <div class="max-w-5xl px-6 pt-8 pb-16">
-            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 mb-4">Invoices</span>
-            <h1 class="text-[32px] md:text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] dark:text-white mb-4">Invoices</h1>
-            <p class="text-base text-[var(--color-text-secondary)] dark:text-neutral-400 leading-relaxed mb-2 max-w-3xl">Create and manage professional invoices for customers and services.</p>
-            <p class="text-base text-[var(--color-text-secondary)] dark:text-neutral-400 leading-relaxed max-w-3xl">Send polished, branded invoices that help you get paid faster and look credible.</p>
-          </div>
-        </div>
-        <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-6 pb-16">
-          <InvoiceManager client:load />
-        </div>
-    </main>
+<AppLayout title="Invoices · Micro Business 365">
+  <div class="space-y-6">
+    <PageHeader
+      badge="Invoices"
+      title="Invoices & Billing"
+      description="Issue tax-compliant invoices, track payment status, and review billing history."
+    />
+    <InvoiceManager client:load />
   </div>
-  </AppShell>
-</Layout>
+</AppLayout>

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { db, type Product, type Category, type StockMovement } from '../../lib/db';
 import { inventoryValue, profitPerUnit, marginPercent, stockStatus } from '../../lib/inventory';
+import { blockDecimalKey, blockNegativeKey, sanitizeInteger, sanitizeAmount, sanitizePercentage } from '../../lib/utils';
 
 export default function ProductManager() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -16,7 +17,7 @@ export default function ProductManager() {
   const [catName, setCatName] = useState('');
   const [form, setForm] = useState<Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>>>({
     name: '', sku: '', barcode: '', type: 'physical', unit: 'pc', purchasePrice: undefined as any, sellingPrice: undefined as any,
-    taxRate: undefined as any, currentStock: undefined as any, minimumStock: 5, supplierId: undefined, categoryId: undefined,
+    taxRate: undefined as any, currentStock: undefined as any, minimumStock: undefined as any, supplierId: undefined, categoryId: undefined,
     description: '', active: true,
   });
 
@@ -44,8 +45,20 @@ export default function ProductManager() {
   }, [products, filter, catFilter, typeFilter, statusFilter]);
 
   async function saveProduct() {
+    if (!form.name || !form.name.trim()) {
+      alert('Product name is required.');
+      return;
+    }
     const now = new Date().toISOString();
-    const data = { ...form, purchasePrice: form.purchasePrice === '' || form.purchasePrice === undefined || form.purchasePrice === null ? 0 : Number(form.purchasePrice), sellingPrice: form.sellingPrice === '' || form.sellingPrice === undefined || form.sellingPrice === null ? 0 : Number(form.sellingPrice), taxRate: form.taxRate === '' || form.taxRate === undefined || form.taxRate === null ? 0 : Number(form.taxRate), currentStock: form.currentStock === '' || form.currentStock === undefined || form.currentStock === null ? 0 : Number(form.currentStock), minimumStock: Number(form.minimumStock || 5) } as Partial<Product>;
+    const data = {
+      ...form,
+      name: form.name.trim(),
+      purchasePrice: form.purchasePrice === '' || form.purchasePrice === undefined || form.purchasePrice === null ? 0 : Math.max(0, Number(form.purchasePrice)),
+      sellingPrice: form.sellingPrice === '' || form.sellingPrice === undefined || form.sellingPrice === null ? 0 : Math.max(0, Number(form.sellingPrice)),
+      taxRate: form.taxRate === '' || form.taxRate === undefined || form.taxRate === null ? 0 : Math.min(100, Math.max(0, Number(form.taxRate))),
+      currentStock: form.currentStock === '' || form.currentStock === undefined || form.currentStock === null ? 0 : Math.max(0, Math.floor(Number(form.currentStock))),
+      minimumStock: form.minimumStock === '' || form.minimumStock === undefined || form.minimumStock === null ? 0 : Math.max(0, Math.floor(Number(form.minimumStock))),
+    } as Partial<Product>;
     if (editing) {
       await db.products.update(editing.id, { ...data, updatedAt: now });
     } else {
@@ -147,6 +160,7 @@ export default function ProductManager() {
             ))}
             <button onClick={() => setShowCatForm(!showCatForm)} className="text-xs text-indigo-300 hover:text-white font-medium">+ Add category</button>
           </div>
+
           {showCatForm && (
             <div className="flex gap-2 mt-3">
               <input className={inputClass + ' !py-2 !text-xs bg-neutral-900/60 border-neutral-700'} value={catName} onChange={e => setCatName(e.target.value)} placeholder="Category name" />
@@ -170,15 +184,15 @@ export default function ProductManager() {
               <select className={inputClass + ' bg-neutral-950 border-neutral-700'} value={form.categoryId ?? ''} onChange={e => setForm({ ...form, categoryId: e.target.value || undefined })}><option value="">Category</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
             </div>
             <div className="grid md:grid-cols-4 gap-3 mb-3">
-              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Purchase price (e.g. ₹50)" type="number" value={form.purchasePrice === undefined || form.purchasePrice === null || form.purchasePrice === '' ? '' : form.purchasePrice} onChange={e => setForm({ ...form, purchasePrice: e.target.value === '' ? '' : Number(e.target.value) })} />
-              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Selling price (e.g. ₹75)" type="number" value={form.sellingPrice === undefined || form.sellingPrice === null || form.sellingPrice === '' ? '' : form.sellingPrice} onChange={e => setForm({ ...form, sellingPrice: e.target.value === '' ? '' : Number(e.target.value) })} />
-              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Tax rate %" type="number" value={form.taxRate === undefined || form.taxRate === null || form.taxRate === '' ? '' : form.taxRate} onChange={e => setForm({ ...form, taxRate: e.target.value === '' ? '' : Number(e.target.value) })} />
+              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Purchase price (e.g. ₹50)" type="number" min="0" step="any" value={form.purchasePrice === undefined || form.purchasePrice === null || form.purchasePrice === '' ? '' : form.purchasePrice} onKeyDown={blockNegativeKey} onChange={e => setForm({ ...form, purchasePrice: sanitizeAmount(e.target.value) })} />
+              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Selling price (e.g. ₹75)" type="number" min="0" step="any" value={form.sellingPrice === undefined || form.sellingPrice === null || form.sellingPrice === '' ? '' : form.sellingPrice} onKeyDown={blockNegativeKey} onChange={e => setForm({ ...form, sellingPrice: sanitizeAmount(e.target.value) })} />
+              <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Tax rate %" type="number" min="0" max="100" step="any" value={form.taxRate === undefined || form.taxRate === null || form.taxRate === '' ? '' : form.taxRate} onKeyDown={blockNegativeKey} onChange={e => setForm({ ...form, taxRate: sanitizePercentage(e.target.value) })} />
               <select className={inputClass + ' bg-neutral-950 border-neutral-700'} value={form.supplierId ?? ''} onChange={e => setForm({ ...form, supplierId: e.target.value || undefined })}><option value="">Supplier</option>{suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
             </div>
             {form.type === 'physical' && (
               <div className="grid md:grid-cols-3 gap-3 mb-3">
-                <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Current stock (e.g. 100)" type="number" value={form.currentStock === undefined || form.currentStock === null || form.currentStock === '' ? '' : form.currentStock} onChange={e => setForm({ ...form, currentStock: e.target.value === '' ? '' : Number(e.target.value) })} />
-                <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Minimum stock (e.g. 10)" type="number" value={form.minimumStock ?? 5} onChange={e => setForm({ ...form, minimumStock: Number(e.target.value) })} />
+                <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Current stock (e.g. 100)" type="number" step="1" min="0" value={form.currentStock === undefined || form.currentStock === null || form.currentStock === '' || form.currentStock === 0 ? '' : form.currentStock} onKeyDown={blockDecimalKey} onChange={e => { const c = sanitizeInteger(e.target.value); setForm({ ...form, currentStock: c === '' ? '' : parseInt(c, 10) }); }} />
+                <input className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Minimum stock (e.g. 10)" type="number" step="1" min="0" value={form.minimumStock === undefined || form.minimumStock === null || form.minimumStock === '' || form.minimumStock === 0 ? '' : form.minimumStock} onKeyDown={blockDecimalKey} onChange={e => { const c = sanitizeInteger(e.target.value); setForm({ ...form, minimumStock: c === '' ? '' : parseInt(c, 10) }); }} />
               </div>
             )}
             <textarea className={inputClass + ' bg-neutral-950 border-neutral-700'} placeholder="Description" rows={2} value={form.description ?? ''} onChange={e => setForm({ ...form, description: e.target.value })} />
@@ -188,22 +202,22 @@ export default function ProductManager() {
               <button onClick={() => { setOpenAdd(false); setEditing(null); }} className="px-5 py-2.5 rounded-xl border border-neutral-600 text-sm text-neutral-300 hover:bg-neutral-900 transition">Cancel</button>
             </div>
           </section>
-        )}
+        )}     )}
 
         {/* Table */}
         <section className="rounded-3xl border border-neutral-700/60 bg-gradient-to-br from-neutral-900/60 to-[#12122a] shadow-2xl shadow-black/30 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="app-table-container">
+            <table className="w-full text-sm min-w-[850px]">
               <thead className="bg-gradient-to-r from-indigo-900/40 to-violet-900/40 text-neutral-200 text-xs uppercase tracking-wider">
                 <tr>
-                  <th className="text-left px-5 py-3.5 font-bold">Product</th>
-                  <th className="text-left px-3 py-3.5 font-bold">SKU</th>
-                  <th className="text-left px-3 py-3.5 font-bold">Category</th>
-                  <th className="text-center px-3 py-3.5 font-bold">Stock</th>
-                  <th className="text-right px-3 py-3.5 font-bold">Sell</th>
-                  <th className="text-right px-3 py-3.5 font-bold">Purchase</th>
-                  <th className="text-center px-3 py-3.5 font-bold">Status</th>
-                  <th className="text-left px-3 py-3.5 font-bold">Actions</th>
+                  <th className="text-left px-5 py-3.5 font-bold whitespace-nowrap">Product</th>
+                  <th className="text-left px-3 py-3.5 font-bold whitespace-nowrap">SKU</th>
+                  <th className="text-left px-3 py-3.5 font-bold whitespace-nowrap">Category</th>
+                  <th className="text-center px-3 py-3.5 font-bold whitespace-nowrap">Stock</th>
+                  <th className="text-right px-3 py-3.5 font-bold whitespace-nowrap">Sell</th>
+                  <th className="text-right px-3 py-3.5 font-bold whitespace-nowrap">Purchase</th>
+                  <th className="text-center px-3 py-3.5 font-bold whitespace-nowrap">Status</th>
+                  <th className="text-left px-3 py-3.5 font-bold whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,16 +226,16 @@ export default function ProductManager() {
                   const statusClass = s === 'out' ? 'text-red-400 font-bold' : s === 'low' ? 'text-amber-400 font-bold' : 'text-emerald-400 font-bold';
                   return (
                     <tr key={p.id} className="border-t border-white/5 hover:bg-white/5 transition">
-                      <td className="px-5 py-3.5">
+                      <td className="px-5 py-3.5 whitespace-nowrap">
                         <div className="font-semibold text-white">{p.name}</div>
                         <div className="text-xs text-neutral-500">{categories.find(c=>c.id===p.categoryId)?.name||'-'} • {p.type}</div>
                       </td>
-                      <td className="px-3 py-3.5 text-neutral-300 font-mono text-xs">{p.sku||'-'}</td>
-                      <td className="px-3 py-3.5 text-neutral-300">{categories.find(c=>c.id===p.categoryId)?.name||'-'}</td>
-                      <td className="px-3 py-3.5 text-center text-neutral-800 dark:text-white font-medium">{p.currentStock ?? 0}</td>
-                      <td className="px-3 py-3.5 text-right text-emerald-300 font-medium">₹{p.sellingPrice ?? 0}</td>
-                      <td className="px-3 py-3.5 text-right text-neutral-300">₹{p.purchasePrice ?? 0}</td>
-                      <td className={`px-3 py-3.5 text-center ${statusClass}`}>{s}</td>
+                      <td className="px-3 py-3.5 text-neutral-300 font-mono text-xs whitespace-nowrap">{p.sku||'-'}</td>
+                      <td className="px-3 py-3.5 text-neutral-300 whitespace-nowrap">{categories.find(c=>c.id===p.categoryId)?.name||'-'}</td>
+                      <td className="px-3 py-3.5 text-center text-neutral-800 dark:text-white font-medium whitespace-nowrap">{p.currentStock ?? 0}</td>
+                      <td className="px-3 py-3.5 text-right text-emerald-300 font-medium whitespace-nowrap">₹{p.sellingPrice ?? 0}</td>
+                      <td className="px-3 py-3.5 text-right text-neutral-300 whitespace-nowrap">₹{p.purchasePrice ?? 0}</td>
+                      <td className={`px-3 py-3.5 text-center whitespace-nowrap ${statusClass}`}>{s}</td>
                       <td className="px-3 py-3.5 whitespace-nowrap">
                         <div className="flex gap-1.5">
                           <button onClick={() => { setEditing(p); setForm({ ...p, purchasePrice: p.purchasePrice ?? '', sellingPrice: p.sellingPrice ?? '', taxRate: p.taxRate ?? '', currentStock: p.currentStock ?? '' } as any); setOpenAdd(false); }} className={btnPrimary}>Edit</button>

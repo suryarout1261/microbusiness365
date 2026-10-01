@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   LayoutDashboard, ShoppingCart, Package, Users, Truck, Wallet, FileText,
-  Receipt, FileUp, BarChart3, Wrench, Settings, Menu, ChevronLeft, ChevronRight
+  Receipt, FileUp, BarChart3, Wrench, Settings, ChevronLeft, ChevronRight
 } from 'lucide-react';
+import { sidebarStore } from '../../lib/sidebarStore';
 
 const modules = [
   { label: 'Overview', href: '/app', icon: LayoutDashboard },
@@ -21,135 +22,112 @@ const modules = [
 ];
 
 export default function AppSidebar({ pathname = '/' }: { pathname?: string }) {
-  const [isMobile, setIsMobile] = useState(false);
-  const [sidebarExpanded, setSidebarExpanded] = useState(true); // desktop: true = show text (expanded), false = icon-only (collapsed)
-  const [sidebarOpen, setSidebarOpen] = useState(false); // mobile: true = overlay open
+  const [desktopExpanded, setDesktopExpanded] = useState(sidebarStore.isDesktopExpanded());
+  const [mobileExpanded, setMobileExpanded] = useState(sidebarStore.isMobileExpanded());
 
   useEffect(() => {
-    const updateIsMobile = () => setIsMobile(window.innerWidth < 1024);
-    updateIsMobile();
-    window.addEventListener('resize', updateIsMobile);
-    return () => window.removeEventListener('resize', updateIsMobile);
+    return sidebarStore.subscribe(() => {
+      setDesktopExpanded(sidebarStore.isDesktopExpanded());
+      setMobileExpanded(sidebarStore.isMobileExpanded());
+    });
   }, []);
 
-  const handleToggle = () => {
-    if (isMobile) {
-      setSidebarOpen(!sidebarOpen);
-    } else {
-      setSidebarExpanded(!sidebarExpanded);
-    }
-  };
-
-  const isActive = (href: string) => {
-    // Handle special case: /app is also the dashboard
+  const isActive = useCallback((href: string) => {
     if (pathname === '/dashboard' && href === '/app') return true;
-    return pathname === href;
-  };
+    if ((pathname === '/payment' || pathname === '/payments') && (href === '/payment' || href === '/payments')) return true;
+    return pathname === href || pathname === `${href}/`;
+  }, [pathname]);
 
-  const sidebarContent = (
-    <>
-      <div className="flex items-center justify-between px-4 py-4">
-        <a href="/" className="flex items-center gap-2.5 font-extrabold text-lg tracking-tight bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent whitespace-nowrap">
-          MicroBusiness365
-        </a>
-        <button
-          onClick={handleToggle}
-          aria-label={isMobile ? (sidebarOpen ? 'Close sidebar' : 'Open sidebar') : (sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar')}
-          className="p-1.5 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-colors"
-        >
-          {isMobile ? (sidebarOpen ? <ChevronLeft size={18} /> : <Menu size={18} />) : (sidebarExpanded ? <ChevronRight size={18} /> : <Menu size={18} />)}
-        </button>
+  return (
+    <aside
+      className={`flex flex-col sticky top-16 h-[calc(100vh-4rem)] z-30 border-r border-gray-200 dark:border-neutral-800 bg-white/95 dark:bg-[#0c0c10]/95 backdrop-blur-xl shadow-lg shadow-black/5 transition-[width] duration-300 ease-in-out shrink-0 overflow-hidden ${
+        mobileExpanded ? 'w-56' : 'w-14'
+      } ${
+        desktopExpanded ? 'lg:w-64' : 'lg:w-16'
+      }`}
+    >
+      {/* Sidebar Top / Toggle Header */}
+      <div className="flex items-center justify-between px-3 py-3.5 border-b border-gray-100 dark:border-neutral-800/80 shrink-0 h-13">
+        {/* Title shown when expanded */}
+        <div className={`overflow-hidden whitespace-nowrap ${mobileExpanded ? 'block' : 'hidden'} ${desktopExpanded ? 'lg:block' : 'lg:hidden'}`}>
+          <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-neutral-500">
+            Workspace
+          </span>
+        </div>
+
+        {/* Compact MB badge shown when collapsed */}
+        <div className={`mx-auto font-bold text-xs text-indigo-600 dark:text-indigo-400 ${mobileExpanded ? 'hidden' : 'block'} ${desktopExpanded ? 'lg:hidden' : 'lg:block'}`}>
+          MB
+        </div>
+
+        {/* Desktop collapse/expand button */}
+        <div className="hidden lg:block ml-auto">
+          <button
+            type="button"
+            onClick={() => sidebarStore.toggleDesktop()}
+            aria-label={desktopExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+            title={desktopExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+          >
+            {desktopExpanded ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+          </button>
+        </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
+      {/* Navigation Links */}
+      <nav className="flex-1 overflow-y-auto px-1.5 sm:px-2 py-3 space-y-1 min-h-0">
         {modules.map(({ label, href, icon: Icon }) => {
           const active = isActive(href);
           return (
             <a
               key={label}
               href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${
+              title={label}
+              className={`flex items-center rounded-xl text-sm font-medium transition-all ${
+                mobileExpanded ? 'gap-3 px-3 py-2.5' : 'justify-center p-2.5'
+              } ${
+                desktopExpanded ? 'lg:gap-3 lg:px-3 lg:py-2.5' : 'lg:justify-center lg:p-2.5'
+              } ${
                 active
-                  ? 'bg-gradient-to-r from-indigo-600/20 to-violet-600/10 text-indigo-700 dark:text-indigo-200 shadow-sm shadow-indigo-500/10 border border-indigo-200/40 dark:border-indigo-800/30'
-                  : 'text-gray-600 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800'
+                  ? 'bg-gradient-to-r from-indigo-600/15 to-violet-600/10 text-indigo-600 dark:text-indigo-400 shadow-sm border border-indigo-200/50 dark:border-indigo-800/40 font-semibold'
+                  : 'text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800/70'
               }`}
-              title={!isMobile && !sidebarExpanded ? label : undefined} // Show tooltip on desktop when collapsed
+              aria-current={active ? 'page' : undefined}
             >
-              <Icon size={20} strokeWidth={2} className="shrink-0" />
-              {!isMobile && sidebarExpanded && <span className="truncate">{label}</span>}
-              {isMobile && <span className="truncate">{label}</span>}
+              <Icon size={19} strokeWidth={active ? 2.3 : 1.8} className="shrink-0" />
+              <span
+                className={`truncate whitespace-nowrap ${
+                  mobileExpanded ? 'inline' : 'hidden'
+                } ${
+                  desktopExpanded ? 'lg:inline' : 'lg:hidden'
+                }`}
+              >
+                {label}
+              </span>
             </a>
           );
         })}
       </nav>
 
-      <div className="px-3 py-3 border-t border-gray-200 dark:border-neutral-800 flex items-center gap-2">
-        <a href="/" className="text-xs font-medium text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200 whitespace-nowrap truncate">Back to site</a>
-      </div>
-    </>
-  );
-
-  return (
-    <>
-      {/* Hamburger button (visible on both desktop and mobile) */}
-      <button
-        onClick={handleToggle}
-        aria-label={isMobile ? (sidebarOpen ? 'Close sidebar' : 'Open sidebar') : (sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar')}
-        className={`fixed top-4 left-4 z-[60] p-2.5 rounded-xl bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md shadow-lg border border-gray-200 dark:border-neutral-800 text-gray-800 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors ${
-          isMobile ? '' : 'lg:hidden'
-        }`}
-      >
-        {isMobile ? (sidebarOpen ? <ChevronLeft size={22} /> : <Menu size={22} />) : (sidebarExpanded ? <ChevronRight size={22} /> : <Menu size={22} />)}
-      </button>
-
-      {/* Desktop sidebar (always visible) */}
-      {!isMobile && (
-        <aside
-          className={`flex-col sticky top-0 h-screen z-50 border-r border-gray-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0a0a0a]/90 backdrop-blur-xl transition-all duration-300 ${
-            sidebarExpanded ? 'w-64' : 'w-16'
-          } shadow-xl shadow-black/5`}
+      {/* Sidebar Footer */}
+      <div className="p-2 sm:p-3 border-t border-gray-200 dark:border-neutral-800 shrink-0">
+        <a
+          href="/"
+          title="Back to Home"
+          className={`flex items-center rounded-lg text-xs font-medium text-gray-500 dark:text-neutral-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${
+            mobileExpanded ? 'justify-start px-2 py-1.5' : 'justify-center p-1.5'
+          } ${
+            desktopExpanded ? 'lg:justify-start lg:px-2 lg:py-1.5' : 'lg:justify-center lg:p-1.5'
+          }`}
         >
-          {sidebarContent}
-        </aside>
-      )}
-
-      {/* Mobile overlay drawer */}
-      {isMobile && (
-        <>
-          {/* Backdrop */}
-          <div
-            className={`fixed inset-0 z-[70] lg:hidden transition-opacity duration-200 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-            onClick={() => setSidebarOpen(false)}
-            aria-hidden={!sidebarOpen}
-          >
-            <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm" />
-          </div>
-          {/* Drawer */}
-          <aside
-            onClick={e => e.stopPropagation()}
-            className={`absolute top-0 left-0 h-full w-[256px] bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-2xl border-r border-gray-200 dark:border-neutral-800 shadow-2xl shadow-black/20 flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-          >
-            <div className="flex items-center justify-between px-4 py-4">
-              <a href="/" className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">MicroBusiness365</a>
-              <button onClick={handleToggle} aria-label="Close sidebar" className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800">
-                <Menu size={18} />
-              </button>
-            </div>
-            <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
-              {modules.map(({ label, href, icon: Icon }) => {
-                const active = isActive(href);
-                return (
-                  <a key={label} href={href} onClick={() => setSidebarOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${active ? 'bg-gradient-to-r from-indigo-600/20 to-violet-600/10 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800'}`}>
-                    <Icon size={20} strokeWidth={2} />
-                    <span>{label}</span>
-                  </a>
-                );
-              })}
-            </nav>
-            <div className="px-3 py-3 border-t border-gray-200 dark:border-neutral-800"><a href="/" className="text-xs font-medium text-gray-500 dark:text-neutral-400 hover:text-gray-700">Back to site</a></div>
-          </aside>
-        </>
-      )}
-    </>
+          <span className={`${mobileExpanded ? 'inline' : 'hidden'} ${desktopExpanded ? 'lg:inline' : 'lg:hidden'}`}>
+            Back to Home
+          </span>
+          <span className={`${mobileExpanded ? 'hidden' : 'inline'} ${desktopExpanded ? 'lg:hidden' : 'lg:inline'}`}>
+            ←
+          </span>
+        </a>
+      </div>
+    </aside>
   );
 }

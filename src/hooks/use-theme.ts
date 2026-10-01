@@ -3,20 +3,25 @@ import { useEffect, useState } from 'react';
 export type Theme = 'light' | 'dark';
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'light';
-    const saved = localStorage.getItem('mb365-theme');
-    if (saved === 'light' || saved === 'dark') return saved;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    const root = document.documentElement;
-    root.classList.toggle('dark', theme === 'dark');
-    try {
-      localStorage.setItem('mb365-theme', theme);
-    } catch (e) {}
-  }, [theme]);
+    const isDark =
+      document.documentElement.classList.contains('dark') ||
+      localStorage.getItem('mb365-theme') === 'dark';
+    setTheme(isDark ? 'dark' : 'light');
+  }, []);
 
-  return { theme, setTheme, toggle: () => setTheme((t) => (t === 'dark' ? 'light' : 'dark')) };
+  const toggle = () => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      document.documentElement.classList.toggle('dark', next === 'dark');
+      try {
+        localStorage.setItem('mb365-theme', next);
+      } catch (e) {}
+      return next;
+    });
+  };
+
+  return { theme, setTheme, toggle };
 }

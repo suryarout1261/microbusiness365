@@ -8,7 +8,7 @@ export default function InventoryValueCalculator() {
   const [result, setResult] = useState<{ totalValue: number; qty: number }>({ totalValue: 0, qty: 0 });
 
   const calculate = () => {
-    const q = parseFloat(quantity) || 0;
+    const q = parseInt(quantity, 10) || 0;
     const cp = parseFloat(costPrice) || 0;
     if (q < 0 || cp < 0) { setResult({ totalValue: 0, qty: 0 }); return; }
     const totalValue = q * cp;
@@ -36,11 +36,11 @@ export default function InventoryValueCalculator() {
         { label: 'Total Units', value: `${result.qty}` },
       ]}
       chartBars={[
-        { label: 'Quantity', value: parseFloat(quantity) || 0, color: '#6366f1' },
+        { label: 'Quantity', value: parseInt(quantity, 10) || 0, color: '#6366f1' },
         { label: 'Total Value', value: result.totalValue, color: '#22c55e' },
       ]}
     >
-      <NumberInput id="qty" label="Quantity in Stock" value={quantity} onChange={(_, v) => setQuantity(v)} placeholder="e.g. 500" step="1" />
+      <NumberInput id="qty" label="Quantity in Stock" value={quantity} onChange={(_, v) => setQuantity(v)} placeholder="e.g. 500" step="1" integerOnly={true} />
       <NumberInput id="cp" label="Cost Price per Unit (₹)" value={costPrice} onChange={(_, v) => setCostPrice(v)} placeholder="e.g. 100" step="0.01" />
     </CalculatorLayout>
   );

@@ -39,6 +39,13 @@ export default function LandingHeader() {
           </a>
 
           <a
+            href="/pricing"
+            className="hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold text-indigo-600 dark:text-indigo-400 transition-colors whitespace-nowrap"
+          >
+            Pricing ⚡
+          </a>
+
+          <a
             href="/#about"
             className="hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap"
           >
@@ -61,11 +68,11 @@ export default function LandingHeader() {
         </nav>
 
         {/* ACTIONS */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
 
           <a
             href="/app"
-            className="hidden sm:inline-flex px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all whitespace-nowrap"
+            className="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-md sm:shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 active:scale-95 transition-all whitespace-nowrap"
           >
             Dashboard
           </a>
@@ -74,7 +81,7 @@ export default function LandingHeader() {
             type="button"
             onClick={toggle}
             aria-label="Toggle dark mode"
-            className="p-2.5 rounded-full bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
+            className="p-2 sm:p-2.5 rounded-full bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
             title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
           >
             {theme === 'dark' ? '☀' : '☾'}
@@ -84,7 +91,7 @@ export default function LandingHeader() {
           <button
             type="button"
             onClick={() => setOpen(!open)}
-            className="md:hidden p-2 rounded-lg text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800"
+            className="md:hidden p-2 rounded-lg text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 cursor-pointer"
             aria-label="Open menu"
             aria-expanded={open}
           >
@@ -113,6 +120,14 @@ export default function LandingHeader() {
               className="py-3"
             >
               Tools
+            </a>
+
+            <a
+              href="/pricing"
+              onClick={() => setOpen(false)}
+              className="py-3 font-semibold text-indigo-600 dark:text-indigo-400"
+            >
+              Pricing ⚡
             </a>
 
             <a

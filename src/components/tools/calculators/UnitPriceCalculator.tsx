@@ -9,7 +9,7 @@ export default function UnitPriceCalculator() {
 
   const calculate = () => {
     const tp = parseFloat(totalPrice) || 0;
-    const q = parseFloat(quantity) || 0;
+    const q = parseInt(quantity, 10) || 0;
     if (q <= 0) { setResult(null); return; }
     const unitPrice = tp / q;
     setResult({ unitPrice, totalCost: tp });
@@ -41,7 +41,7 @@ export default function UnitPriceCalculator() {
       ] : []}
     >
       <NumberInput id="tp" label="Total Price (₹)" value={totalPrice} onChange={(_, v) => setTotalPrice(v)} placeholder="e.g. 1000" step="0.01" />
-      <NumberInput id="qty" label="Quantity" value={quantity} onChange={(_, v) => setQuantity(v)} placeholder="e.g. 10" step="1" />
+      <NumberInput id="qty" label="Quantity" value={quantity} onChange={(_, v) => setQuantity(v)} placeholder="e.g. 10" step="1" integerOnly={true} />
     </CalculatorLayout>
   );
 }
